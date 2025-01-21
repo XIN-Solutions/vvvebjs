@@ -1100,6 +1100,12 @@ Vvveb.Builder = {
 				
 				//prevent accidental clicks on links when editing text
 				window.FrameDocument.addEventListener("click", function(event) {
+
+					if (!isEditableElement(event.target)) {
+						event.preventDefault();
+						return false;
+					}
+
 					if (Vvveb.WysiwygEditor.isActive && event.target.closest("a"))  {
 						event.preventDefault();
 						return false;
@@ -1678,7 +1684,6 @@ Vvveb.Builder = {
 			if (event.target) {
 
 				if (!isEditableElement(event.target)) {
-					console.log("Not editable.");
 					return;
 				}
 
