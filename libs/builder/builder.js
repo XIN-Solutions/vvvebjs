@@ -59,32 +59,6 @@ https://github.com/givanz/VvvebJs
 
 var rbracket = /\[\]$/;
 
-function hasEditableParent(element) {
-	let parent = element.parentElement;
-
-	while (parent) {
-		if (parent.hasAttribute('data-editable')) {
-			return true;
-		}
-		parent = parent.parentElement;
-	}
-
-	return false;
-}
-
-
-function hasLockedParent(element) {
-	let parent = element.parentElement;
-
-	while (parent) {
-		if (parent.hasAttribute('data-locked')) {
-			return true;
-		}
-		parent = parent.parentElement;
-	}
-
-	return false;
-}
 
 function isEditableElement(element) {
 
@@ -93,12 +67,12 @@ function isEditableElement(element) {
 	}
 
 	// explicitly locked element or parent
-	if (element.hasAttribute("data-locked") || hasLockedParent(element)) {
+	if (element.hasAttribute("data-locked") || element.closest("[data-locked]")) {
 		return false;
 	}
 
 	// has been enabled?
-	if (element.hasAttribute("data-editable") || hasEditableParent(element)) {
+	if (element.hasAttribute("data-editable") || element.closest("[data-editable]")) {
 		return true;
 	}
 
@@ -3874,6 +3848,12 @@ Vvveb.Breadcrumb = {
 			let element = event.target.closest(".breadcrumb-item");
 			if (element) {
 				let node = element._node;
+
+				if (!isEditableElement(node)) {
+					e.preventDefault();
+					return;
+				}
+
 				if (node) {
 					//node.click();
 					Vvveb.Builder.selectNode(node);
