@@ -58,7 +58,54 @@ https://github.com/givanz/VvvebJs
 
 
 var rbracket = /\[\]$/;
-	
+
+function hasEditableParent(element) {
+	let parent = element.parentElement;
+
+	while (parent) {
+		if (parent.hasAttribute('data-editable')) {
+			return true;
+		}
+		parent = parent.parentElement;
+	}
+
+	return false;
+}
+
+
+function hasLockedParent(element) {
+	let parent = element.parentElement;
+
+	while (parent) {
+		if (parent.hasAttribute('data-locked')) {
+			return true;
+		}
+		parent = parent.parentElement;
+	}
+
+	return false;
+}
+
+function isEditableElement(element) {
+
+	if (element.tagName === "BODY") {
+		return false;
+	}
+
+	// explicitly locked element or parent
+	if (element.hasAttribute("data-locked") || hasLockedParent(element)) {
+		return false;
+	}
+
+	// has been enabled?
+	if (element.hasAttribute("data-editable") || hasEditableParent(element)) {
+		return true;
+	}
+
+	return false;
+}
+
+
 function buildParams( prefix, obj,  add ) {
 	var name;
 
@@ -851,7 +898,7 @@ Vvveb.Builder = {
 		self.dragElement = null;
 		
 		self.highlightEnabled = true;
-		
+
 		self.leftPanelWidth = document.getElementById("left-panel").clientWidth;
 	},
 	
@@ -975,7 +1022,7 @@ Vvveb.Builder = {
 					<label class="header" for="${type}_blockhead_${group}">
 						${group}<div class="header-arrow"></div>
 					</label>
-					<input class="header_check" type="checkbox" checked="true" id="${type}_blockhead_${group}">
+					<input class="header_check" type="checkbox" checked="checked" id="${type}_blockhead_${group}">
 					<ol></ol>
 				</li>`)[0]);
 
@@ -994,7 +1041,7 @@ Vvveb.Builder = {
 
 						if (block.image) {
 
-							let image = ((block.image.indexOf('/') == -1) ? Vvveb.imgBaseUrl:'') + block.image;
+							let image = ((block.image.indexOf('/') === -1) ? Vvveb.imgBaseUrl:'') + block.image;
 							/*
 							Object.assign(item.style,{
 								//backgroundImage: "url(" + image + ")",
@@ -1018,7 +1065,7 @@ Vvveb.Builder = {
 		document.getElementById("select-box").style.display = "none";
 		
 		self.initCallback = callback;
-		if (Vvveb.Builder.iframe.src != url) Vvveb.Builder.iframe.src = url;
+		if (Vvveb.Builder.iframe.src !== url) Vvveb.Builder.iframe.src = url;
 	},
 	
 /* iframe */
@@ -1059,7 +1106,7 @@ Vvveb.Builder = {
 					}
 				});
 				
-				selectBoxPosition = function(event) {
+				const selectBoxPosition = function(event) {
 						let pos;
 						let target = self.selectedEl;// ?? self.highlightEl;
 						
@@ -1067,12 +1114,22 @@ Vvveb.Builder = {
 
 						if (target) {
 							pos = offset(target);
-						
-							SelectBox.style.top  = (pos.top - (self.frameDoc.scrollTop ?? 0)  - self.selectPadding) + "px"; 
+
+							let topPx = pos.top - (self.frameDoc.scrollTop ?? 0) - self.selectPadding;
+							let heightPx = (target.offsetHeight ?? target.clientHeight) + self.selectPadding * 2;
+
+							if (topPx < 0) {
+								heightPx += topPx;
+								topPx = 0;
+							}
+
+							SelectBox.style.top  = topPx + "px";
 							SelectBox.style.left = (pos.left - (self.frameDoc.scrollLeft ?? 0) - self.selectPadding) + "px";
 
-							SelectBox.style.width = ((target.offsetWidth ?? target.clientWidth) + self.selectPadding * 2) + "px"; 			
-							SelectBox.style.height = ((target.offsetHeight ?? target.clientHeight) + self.selectPadding * 2) + "px";
+							SelectBox.style.width = ((target.offsetWidth ?? target.clientWidth) + self.selectPadding * 2) + "px";
+							SelectBox.style.height = heightPx + "px";
+
+
 						}
 				}
 				
@@ -1317,9 +1374,21 @@ Vvveb.Builder = {
 		let self = Vvveb.Builder;
 		
 		let highlightMove = function(event) {
-			if (self.highlightEnabled == true && event.target && isElement(event.target)) {
+			if (self.highlightEnabled === true && event.target && isElement(event.target)) {
+
+				// can we edit this element?
+				if (!isEditableElement(event.target)) {
+					return;
+				}
+
+				// don't want to highlight when we're hovering over the body.
+				if (event.target.tagName === "BODY") {
+					return;
+				}
 
 				self.highlightEl = target = event.target;
+
+
 				let pos = offset(target);
 				let height = target.offsetHeight;
 				let halfHeight = Math.max(height / 2, 5);
@@ -1557,78 +1626,91 @@ Vvveb.Builder = {
 		self.frameBody.addEventListener("mouseup", highlightUp);
 
 		let highlightDbClick = function(event) {
-			
-			if (Vvveb.Builder.isPreview == false) {
-				
-				if (!Vvveb.WysiwygEditor.isActive)  {
-					self.selectPadding = 10;
-					self.texteditEl = target = event.target;
 
-					Vvveb.WysiwygEditor.edit(self.texteditEl);
-					
-					_updateSelectBox = function(event) {
-						if (!self.texteditEl) return;
-						let pos = offset(self.selectedEl);
+			if (Vvveb.Builder.isPreview) {
+				return;
+			}
 
-						let SelectBox = document.getElementById("select-box");
+			if (!isEditableElement(event.target)) {
+				return;
+			}
 
-						SelectBox.style.top  = (pos.top - (self.frameDoc.scrollTop ?? 0)  - self.selectPadding) + "px";
-						SelectBox.style.left = (pos.left - (self.frameDoc.scrollLeft ?? 0) - self.selectPadding) + "px";
-						SelectBox.style.width = (self.texteditEl.offsetWidth + (self.selectPadding * 2)) + "px";
-						SelectBox.style.height = (self.texteditEl.offsetHeight + (self.selectPadding * 2)) + "px";
-						SelectBox.style.display = "block";
-					};
-					
-					//update select box when the text size is changed
-					self.texteditEl.addEventListener("blur", _updateSelectBox);	
-					self.texteditEl.addEventListener("keyup", _updateSelectBox);	
-					self.texteditEl.addEventListener("paste", _updateSelectBox);	
-					self.texteditEl.addEventListener("input", _updateSelectBox);	
-					_updateSelectBox();	
-					
-					document.getElementById("select-box").classList.add("text-edit")
-					document.getElementById("select-actions").style.display = "none";
-					document.getElementById("highlight-box").style.display = "none";
-				}
-		 	}
+			if (!Vvveb.WysiwygEditor.isActive)  {
+				self.selectPadding = 10;
+				self.texteditEl = target = event.target;
+
+				Vvveb.WysiwygEditor.edit(self.texteditEl);
+
+				_updateSelectBox = function(event) {
+					if (!self.texteditEl) return;
+					let pos = offset(self.selectedEl);
+
+					let SelectBox = document.getElementById("select-box");
+
+					SelectBox.style.top  = (pos.top - (self.frameDoc.scrollTop ?? 0)  - self.selectPadding) + "px";
+					SelectBox.style.left = (pos.left - (self.frameDoc.scrollLeft ?? 0) - self.selectPadding) + "px";
+					SelectBox.style.width = (self.texteditEl.offsetWidth + (self.selectPadding * 2)) + "px";
+					SelectBox.style.height = (self.texteditEl.offsetHeight + (self.selectPadding * 2)) + "px";
+					SelectBox.style.display = "block";
+				};
+
+				//update select box when the text size is changed
+				self.texteditEl.addEventListener("blur", _updateSelectBox);
+				self.texteditEl.addEventListener("keyup", _updateSelectBox);
+				self.texteditEl.addEventListener("paste", _updateSelectBox);
+				self.texteditEl.addEventListener("input", _updateSelectBox);
+				_updateSelectBox();
+
+				document.getElementById("select-box").classList.add("text-edit")
+				document.getElementById("select-actions").style.display = "none";
+				document.getElementById("highlight-box").style.display = "none";
+			}
 		};
 		
 		self.frameBody.addEventListener("dblclick", highlightDbClick);
 		
 		let highlightClick = function(event) {
 			
-			if (Vvveb.Builder.isPreview == false){
-				if (event.target) {
-					if (Vvveb.WysiwygEditor.isActive )  {
-						if (self.texteditEl.contains(event.target)) {
-							return true;
-						}
-					}
-					//if component properties is loaded in left panel tab instead of right panel show tab
-					let componentTab = document.querySelector(".component-properties-tab a");
-					if (componentTab.offsetParent) { //if properites tab is enabled/visible 
-						componentTab.style.display = "";
-						const bsTab = bootstrap.Tab.getOrCreateInstance(componentTab);
-						bsTab.show(); 
-					}
-					
-					self.selectNode(event.target);
-					Vvveb.TreeList.selectComponent(event.target);
-					self.loadNodeComponent(event.target);
+			if (Vvveb.Builder.isPreview) {
+				return;
+			}
 
-					if (Vvveb.component.resizable) {
-						document.getElementById("select-box").classList.add("resizable");
-                      	self.resizeMode = Vvveb.component.resizeMode;
-					} else {
-						document.getElementById("select-box").classList.remove("resizable");
+			if (event.target) {
+
+				if (!isEditableElement(event.target)) {
+					console.log("Not editable.");
+					return;
+				}
+
+				if (Vvveb.WysiwygEditor.isActive)  {
+					if (self.texteditEl.contains(event.target)) {
+						return true;
 					}
-					
-					document.getElementById("add-section-box").style.display = "none";
-					event.preventDefault();
-					return false;
-				}	
-			}	
-			
+				}
+				//if component properties is loaded in left panel tab instead of right panel show tab
+				let componentTab = document.querySelector(".component-properties-tab a");
+				if (componentTab.offsetParent) { //if properites tab is enabled/visible
+					componentTab.style.display = "";
+					const bsTab = bootstrap.Tab.getOrCreateInstance(componentTab);
+					bsTab.show();
+				}
+
+				self.selectNode(event.target);
+				Vvveb.TreeList.selectComponent(event.target);
+				self.loadNodeComponent(event.target);
+
+				if (Vvveb.component.resizable) {
+					document.getElementById("select-box").classList.add("resizable");
+					self.resizeMode = Vvveb.component.resizeMode;
+				} else {
+					document.getElementById("select-box").classList.remove("resizable");
+				}
+
+				document.getElementById("add-section-box").style.display = "none";
+				event.preventDefault();
+				return false;
+			}
+
 		};
 		
 		self.frameBody.addEventListener("click", highlightClick);
@@ -1638,7 +1720,7 @@ Vvveb.Builder = {
 	_initBox: function() {
 		let self = this;
 		
-		document.getElementById("drag-btn").addEventListener("mousedown", function(event) {
+		document.getElementById("drag-btn")?.addEventListener("mousedown", function(event) {
 			//self.dragElement = self.selectedEl.setAttribute("style",Vvveb.dragElementStyle);
 			if (event.which == 1) {//left click
 				self.isDragging = true;
@@ -1715,8 +1797,13 @@ Vvveb.Builder = {
 		
 		document.getElementById("parent-btn").addEventListener("click", function(event) {
 			
-			node = self.selectedEl.parentNode;
-			
+			const node = self.selectedEl.parentNode;
+
+			if (!isEditableElement(node)) {
+				event.preventDefault();
+				return false;
+			}
+
 			self.selectNode(node);
 			self.loadNodeComponent(node);
 			Vvveb.TreeList.selectComponent(node);
@@ -1725,7 +1812,7 @@ Vvveb.Builder = {
 			return false;
 		});		
 		
-		document.getElementById("save-reusable-btn").addEventListener("click", function(event) {
+		document.getElementById("save-reusable-btn")?.addEventListener("click", function(event) {
 			
 			node = self.selectedEl;
 
@@ -1744,7 +1831,7 @@ Vvveb.Builder = {
 		});
 		
 		let codeEditorOldValue;
-		document.getElementById("edit-code-btn").addEventListener("click", function(event) {
+		document.getElementById("edit-code-btn")?.addEventListener("click", function(event) {
 			let value = Vvveb.Builder.selectedEl.innerHTML;
 
 			Vvveb.ModalCodeEditor.show();
@@ -2930,7 +3017,7 @@ Vvveb.ContentManager = {
 function getNodeTree (node, parent, allowedComponents, idToNode = {}) {
 	
 	function getNodeTreeTraverse (node, parent, id = '') {
-		
+
 		if (node.hasChildNodes()) {
 			for (let j = 0; j < node.childNodes.length; j++) {
 				
@@ -2987,6 +3074,11 @@ function drawComponentsTree(tree) {
 		
 		for (i in tree) {
 			let node = tree[i];
+
+			if (!isEditableElement(node.node)) {
+				continue;
+			}
+
 			let id = node.id;
 			let li;
 			
@@ -3440,7 +3532,7 @@ Vvveb.TreeList = {
 	loadComponents: function() {
 		let list = this.container.querySelector(".tree > ol");
 		//if navigator not visible don't load
-		if (list.offsetParent === null) return;
+		// if (list.offsetParent === null) return;
 		
 		this.tree     = [];
 		this.idToNode = {};
@@ -3790,7 +3882,7 @@ Vvveb.Breadcrumb = {
 		
 		let currentHoverNode;
 		this.tree.addEventListener("mousemove", function (e) {
-			if (event.target == currentHoverNode) return;
+			if (event.target === currentHoverNode) return;
 			currentHoverNode = event.target;
 			
 			let element = event.target.closest(".breadcrumb-item");
