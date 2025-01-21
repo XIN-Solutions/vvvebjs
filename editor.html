@@ -17,7 +17,7 @@
 
 	<div id="vvveb-builder">
 				<div id="top-panel">
-					<img src="img/logo.png" alt="Vvveb" class="float-start" id="logo">
+<!--					<img src="img/logo.png" alt="Vvveb" class="float-start" id="logo">-->
 					
 					<div class="btn-group float-start" role="group">
 					  <button class="btn btn-light" title="Toggle file manager" id="toggle-file-manager-btn" data-vvveb-action="toggleFileManager" data-bs-toggle="button" aria-pressed="false">
@@ -57,7 +57,7 @@
 						  <i class="icon-expand-outline"></i>
 					  </button>
 
-					  <button class="btn btn-light active" title="Toggle navigator" id="toggle-tree-list" data-bs-toggle="button" data-vvveb-action="toggleTreeList" aria-pressed="true">
+					  <button class="btn btn-light" title="Toggle navigator" id="toggle-tree-list" data-bs-toggle="button" data-vvveb-action="toggleTreeList" >
 						  <i class="icon-layers-outline"></i>
 					  </button>
 
@@ -123,7 +123,8 @@
 
 				<div id="left-panel">
 					  <div>
-					  <div id="filemanager"> 
+
+					  <div id="filemanager" class="d-none">
 							<div class="header">
 								<span class="text-secondary"><i class="la la-file la-lg"></i> Pages</span>
 
@@ -132,11 +133,7 @@
 									<!-- <span>Add new</span> -->
 									<i class="icon-add"></i>
 									  </button>
-									  
-									  <!--  &ensp;
-									  <button class="btn btn-link text-dark p-0"  title="Delete file" id="delete-file-btn" data-vvveb-action="deletePage" data-vvveb-shortcut="">
-										  <i class="la la-trash"></i> <small>Delete</small>
-									  </button> -->
+
 									</div>
 
 								</div>
@@ -146,8 +143,7 @@
 									</ol>
 								</div>
 					  </div>
-					  
-					  
+
 					 <div class="drag-elements">
 						
 						<div class="header">
@@ -176,13 +172,16 @@
 									<!-- div><small>Properties</small></div -->
 								</a>
 							  </li>
+
+<!--
 							  <li class="nav-item component-configuration-tab">
 								<a class="nav-link" id="configuration-tab" data-bs-toggle="tab" href="#configuration" role="tab" aria-controls="configuration" aria-selected="false" title="Styles">
 									<i class="icon-color-wand-outline"></i>
-									<!-- img src="../../../js/vvvebjs/icons/filters.svg" height="23"--> 
-									<!-- div><small>Properties</small></div -->
+									&lt;!&ndash; img src="../../../js/vvvebjs/icons/filters.svg" height="23"&ndash;&gt;
+									&lt;!&ndash; div><small>Properties</small></div &ndash;&gt;
 								</a>
 							  </li>
+-->
 							</ul>
 					
 							<div class="tab-content">
@@ -626,14 +625,20 @@
 								</div>
 
 								<div id="select-actions">
+<!--
 									<a id="drag-btn" href="" title="Drag element"><i class="la la-arrows-alt"></i></a>
+-->
 									<a id="parent-btn" href="" title="Select parent" class="la-rotate-180"><i class="la la-level-up-alt"></i></a>
 									
 									<a id="up-btn" href="" title="Move element up"><i class="la la-arrow-up"></i></a>
 									<a id="down-btn" href="" title="Move element down"><i class="la la-arrow-down"></i></a>
+<!--
 									<a id="edit-code-btn" href="" title="Edit html code"><i class="icon-code-outline"></i></a>
+-->
 
+<!--
 									<a id="save-reusable-btn" href="" title="Save as reusable" class="mx-2"><i class="icon-save-outline"></i></a>
+-->
 									<a id="clone-btn" href="" title="Clone element"><i class="icon-copy-outline"></i></a>
 									<a id="delete-btn" href="" title="Remove element"><i class="icon-trash-outline"></i></a>
 								</div>
@@ -841,6 +846,7 @@
 							</div>
 
 
+							<!--
 							<div class="btn-group" role="group">
 
 								<div id="toggleEditorJsExecute" class="form-check mt-1" style="display:none">
@@ -855,7 +861,8 @@
 								 
 
 							</div>
-							
+							-->
+
 						</div>
 							
 						<div id="vvveb-code-editor">
@@ -1507,8 +1514,7 @@
 
 <!--// end templates -->
 
-
-        <div id="tree-list">
+        <div id="tree-list" class="d-none" >
           <div class="header">
             <div>Navigator</div>
             <button class="btn btn-sm" data-vvveb-action="toggleTreeList" aria-pressed="true">
@@ -1517,16 +1523,6 @@
           </div>
           <div class="tree">
             <ol>
-              <!--
-			<li data-component="Products" class="file">							
-				<label for="idNaN" style="background-image:url(/js/vvvebjs/icons/products.svg)"><span>Products</span></label>							
-				<input type="checkbox" id="idNaN">
-			</li>
-			<li data-component="Posts" class="file">							
-				<label for="idNaN" style="background-image:url(/js/vvvebjs/icons/posts.svg)"><span>Posts</span></label>							
-				<input type="checkbox" id="idNaN">
-			</li>
-			-->
             </ol>
           </div>
         </div>
@@ -1800,7 +1796,7 @@ Unzip the latest ckeditor release zip from https://github.com/ckeditor/ckeditor4
 <script src="libs/jszip/jszip.min.js"></script>
 <script src="libs/jszip/filesaver.min.js"></script>
 <script src="libs/builder/plugin-jszip.js"></script>
-<script src="libs/builder/plugin-ai-assistant.js"></script>
+<!--<script src="libs/builder/plugin-ai-assistant.js"></script>-->
 
 
 <!-- autocomplete plugin used by autocomplete input-->
@@ -1815,24 +1811,25 @@ let oEmbedProxyUrl = 'save.php?action=oembedProxy';
 let chatgptOptions = {"key":"","model":"gpt-3.5-turbo-instruct","temperature":0,"max_tokens":300};
 
 let defaultPages = {
-	//uncomment php code below and rename file to .php extension to load saved html files in the editor or use editor.php
-	/*
-	<?php 
-	   $htmlFiles = glob('{my-pages/*.html,demo/*\/*.html, demo/*.html}',  GLOB_BRACE);
-	   foreach ($htmlFiles as $file) { 
-		   if (in_array($file, array('new-page-blank-template.html', 'editor.html'))) continue;//skip template files
-		   $pathInfo = pathinfo($file);
-		   $filename = $pathInfo['filename'];
-		   $folder = preg_replace('@/.+?$@', '', $pathInfo['dirname']);
-		   $subfolder = preg_replace('@^.+?/@', '', $pathInfo['dirname']);
-		   if ($filename == 'index' && $subfolder) {
-			   $filename = $subfolder;
-		   }
-		   $url = $pathInfo['dirname'] . '/' . $pathInfo['basename'];
-	?>
-	"<?php echo ucfirst($filename);?>":{name:"<?php echo ucfirst($filename);?>", file:"<?php echo ucfirst($filename);?>", title:"<?php echo ucfirst($filename);?>",  url: "<?php echo $url;?>", folder:"<?php echo $folder?>"},
-	<?php } ?>
-	*/
+
+	"blank": {
+		name: "blank",
+		filename: "blank.html",
+		file: "demo/landing/blank.html",
+		url: "demo/landing/blank.html",
+		title: "Blank page",
+		folder: null,
+		description: "Template page used for new pages"
+	},
+	"index-landing": {
+		name: "index-landing",
+		filename: "index-landing.html",
+		file: "demo/landing/index-landing.html",
+		url: "demo/landing/index-landing.html",
+		title: "Index landing",
+		folder: null,
+		description: ""
+	},
   "index": {
     name: "index",
     filename: "index.html",
@@ -1850,15 +1847,6 @@ let defaultPages = {
     title: "Contact us page",
     folder: null,
     description: "Contact us page"
-  },
-  "blank": {
-    name: "blank",
-    filename: "blank.html",
-    file: "demo/landing/blank.html",
-    url: "demo/landing/blank.html",
-    title: "Blank page",
-    folder: null,
-    description: "Template page used for new pages"
   },
   "error404": {
     name: "error404",
@@ -1884,15 +1872,6 @@ let defaultPages = {
     file: "demo/landing/index-blog.html",
     url: "demo/landing/index-blog.html",
     title: "Index blog",
-    folder: null,
-    description: ""
-  },
-  "index-landing": {
-    name: "index-landing",
-    filename: "index-landing.html",
-    file: "demo/landing/index-landing.html",
-    url: "demo/landing/index-landing.html",
-    title: "Index landing",
     folder: null,
     description: ""
   },
