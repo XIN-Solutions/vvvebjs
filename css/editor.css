@@ -24002,6 +24002,9 @@ html[data-bs-theme=dark] #vvveb-builder #top-panel img {
 #vvveb-builder #select-actions a:hover, #vvveb-builder #wysiwyg-editor.default-editor a:hover, #vvveb-builder #section-actions a#add-section-btn:hover {
   background-color: rgba(var(--bs-body-color-rgb), 0.3);
 }
+#vvveb-builder #section-actions a#add-section-btn {
+  top: 6px;
+}
 #vvveb-builder #section-actions a#add-section-btn:hover {
   background-color: rgba(var(--bs-primary-rgb), 0.9);
 }
@@ -24438,7 +24441,7 @@ html[data-bs-theme=dark] li[data-type][data-drag-type=component] a {
   font-size: 12px;
 }
 .sections-container > div.section-item .controls .buttons {
-  margin-right: 1.3rem;
+  margin-right: 0.2rem;
   margin-top: 0.2rem;
 }
 .sections-container > div.section-item .controls .buttons a {

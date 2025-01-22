@@ -2450,7 +2450,7 @@ Vvveb.Gui = {
 		let file = Vvveb.FileManager.getPageData('file');
 		//if offcanvas check if user provided new template name
 		if (btn.classList.contains("save-offcanvas")) {
-			if (document.querySelector("#save-offcanvas [name=template]:checked").value == "new") {
+			if (document.querySelector("#save-offcanvas [name=template]:checked").value === "new") {
 				file = document.querySelector("#save-offcanvas [name=folder]").value + "/" + document.querySelector("#save-offcanvas [name=file]").value;
 			}
 		}
@@ -3168,6 +3168,7 @@ Vvveb.SectionList = {
 				e.preventDefault();
 			}
 		});
+		/*
 
 		let sectionIn;
 		let img = document.querySelector(".block-preview img");
@@ -3187,7 +3188,6 @@ Vvveb.SectionList = {
 			}
 		})
 		
-		/*
 		document.querySelector(this.selector).addEventListener("click", ".up-btn", function (e) {
 			let section = e.target.closest(".section-item");
 			let node = section._node;
@@ -3300,6 +3300,9 @@ Vvveb.SectionList = {
 				type: node.tagName.toLowerCase(),
 				node: node
 			};
+			if (!isEditableElement(node)) {
+				return;
+			}
 			sections.push(section);
 		});
 		
