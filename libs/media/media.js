@@ -111,7 +111,7 @@ class MediaModal {
 		  </div>
 		</div>`;
 		
-		this.response = [],
+		this.response = [];
 		this.currentPath = '';
 		this.breadcrumbsUrls = [];
 		this.filemanager = null;
@@ -637,7 +637,7 @@ _
 				
 				actions += '<a href="javascript:void(0);" title="Rename" class="btn btn-outline-primary btn-sm border-0 btn-rename"><i class="la la-edit"></i></a> <a href="javascript:void(0);" title="Delete" class="btn btn-outline-danger btn-sm border-0 btn-delete"><i class="la la-trash"></i></a>';
 
-				const event = new CustomEvent("mediaModal:fileActions", {detail: { file: _this.mediaPath + f.path, name, fileType, fileSize, isImage, fileType, actions} });
+				const event = new CustomEvent("mediaModal:fileActions", {detail: { file: _this.mediaPath + f.path, name, fileSize, isImage, fileType, actions} });
 				window.dispatchEvent(event);			
 
 				if (isImage) actions += '<a href="javascript:void(0);" class="preview-link p-2"><i class="la la-search-plus"></i></a>';
@@ -719,7 +719,7 @@ _
 						icon = '<span class="icon folder full"></span>';
 					}
 
-					if(itemsLength == 1) {
+					if(itemsLength === 1) {
 						itemsLength += ' item';
 					}
 					else if(itemsLength > 1) {

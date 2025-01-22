@@ -1220,6 +1220,7 @@ body
 	}
 	
 	#section-actions a#add-section-btn {
+		top: 6px;
 		&:hover {
 			background-color:rgba(var(--bs-primary-rgb), 0.9);
 		}
@@ -1760,7 +1761,7 @@ width:100%;
 		}
 		
 		.buttons {
-			margin-right:1.3rem;
+			margin-right:0.2rem;
 			margin-top:0.2rem;
 			
 			//align-self: flex-end;
