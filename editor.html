@@ -28,8 +28,7 @@
 					  <button class="btn btn-light active" title="Toggle left column" id="toggle-left-column-btn" data-vvveb-action="toggleLeftColumn" data-bs-toggle="button" aria-pressed="false">
 						  <img src="libs/builder/icons/left-column-layout.svg" width="18" height="18" alt="" role="presentation">
 					  </button>
-					  
-					  <button class="btn btn-light" title="Toggle right column" id="toggle-right-column-btn" data-vvveb-action="toggleRightColumn" data-bs-toggle="button" aria-pressed="false">
+					  <button class="btn btn-light active" title="Toggle right column" id="toggle-right-column-btn" data-vvveb-action="toggleRightColumn" data-bs-toggle="button" aria-pressed="false">
 						  <img src="libs/builder/icons/right-column-layout.svg" width="18" height="18" alt="" role="presentation">
 					  </button>
 					</div>
@@ -46,9 +45,11 @@
 										
 					
 					<div class="btn-group me-3" role="group">
-					  <button class="btn btn-light" title="Designer Mode (Free dragging)" id="designer-mode-btn" data-bs-toggle="button" aria-pressed="false" data-vvveb-action="setDesignerMode">
-						  <i class="la la-hand-rock"></i>
-					  </button>
+						<!--
+						  <button class="btn btn-light" title="Designer Mode (Free dragging)" id="designer-mode-btn" data-bs-toggle="button" aria-pressed="false" data-vvveb-action="setDesignerMode">
+							  <i class="la la-hand-rock"></i>
+						  </button>
+						  -->
 
 					  <button class="btn btn-light" title="Preview" id="preview-btn" type="button" data-bs-toggle="button" aria-pressed="false" data-vvveb-action="preview">
                 <i class="icon-eye-outline"></i>
@@ -151,22 +152,26 @@
 							<ul class="nav nav-tabs  nav-fill" id="elements-tabs" role="tablist">
 							  <li class="nav-item sections-tab">
 								<a class="nav-link active" id="sections-tab" data-bs-toggle="tab" href="#sections" role="tab" aria-controls="sections" aria-selected="true" title="Sections">
-									<i class="icon-layers-outline"></i>
-									<!-- img src="../../../js/vvvebjs/icons/list_group.svg" height="23" --> 
-									<!-- div><small>Sections</small></div -->
+									<div class="d-flex align-items-center mx-1">
+										<i class="icon-layers-outline px-2"></i>
+										<small>Sections</small>
+									</div>
 								</a>
 							  </li>
 							  <li class="nav-item component-tab">
 								<a class="nav-link" id="components-tab" data-bs-toggle="tab" href="#components-tabs" role="tab" aria-controls="components" aria-selected="false" title="Components">
-									<i class="icon-cube-outline"></i>
+									<div class="d-flex align-items-center mx-1">
+										<i class="icon-cube-outline px-2"></i>
+										<small>Components</small>
+									</div>
 									<!-- img src="../../../js/vvvebjs/icons/product.svg" height="23" --> 
-									<!-- div><small>Components</small></div -->
+									<!-- div></div -->
 								</a>
 							  </li>
 							  <!-- li class="nav-item sections-tab">
 								<a class="nav-link" id="sections-tab" data-bs-toggle="tab" href="#sections" role="tab" aria-controls="sections" aria-selected="false" title="Sections"><img src="../../../js/vvvebjs/icons/list_group.svg" width="24" height="23"> <div><small>Sections</small></div></a>
 							  </li -->
-							  <li class="nav-item component-properties-tab d-none">
+							  <li class="nav-item component-properties-tab d-none" style="display:none !important">
 								<a class="nav-link" id="properties-tab" data-bs-toggle="tab" href="#properties" role="tab" aria-controls="properties" aria-selected="false" title="Properties">
 									<i class="icon-settings-outline"></i>
 									<!-- img src="../../../js/vvvebjs/icons/filters.svg" height="23"--> 
@@ -2221,7 +2226,7 @@ Vvveb.CssEditor.init();
 
 Vvveb.FileManager.addPages(pages);
 Vvveb.FileManager.loadPage(pages[firstPage]["name"]);
-Vvveb.Gui.toggleRightColumn(false);
+// Vvveb.Gui.toggleRightColumn();
 Vvveb.Breadcrumb.init();
 </script>
 </body>
