@@ -60,6 +60,14 @@ https://github.com/givanz/VvvebJs
 var rbracket = /\[\]$/;
 
 
+function hideSelectBox() {
+	document.getElementById("select-box").style.display = "none";
+}
+
+function hideHighlightBox() {
+	document.getElementById("highlight-box").style.display = "none";
+}
+
 function isEditableElement(element) {
 
 	if (element.tagName === "BODY") {
@@ -1232,10 +1240,11 @@ Vvveb.Builder = {
 		}
 		
 		Vvveb.Builder.selectNode(node);
+		Vvveb.TreeList.loadComponents();
 
 		newParent = node.parentNode;
 		newNextSibling = node.nextSibling;
-		
+
 		Vvveb.Undo.addMutation({type: 'move', 
 								target: node,
 								oldParent: oldParent,
@@ -1262,7 +1271,8 @@ Vvveb.Builder = {
 			}
 			
 			Vvveb.Builder.selectNode(node);
-			
+			Vvveb.TreeList.loadComponents();
+
 			newParent = node.parentNode;
 			newNextSibling = node.nextSibling;
 			
@@ -1658,6 +1668,8 @@ Vvveb.Builder = {
 			if (event.target) {
 
 				if (!isEditableElement(event.target)) {
+					hideSelectBox();
+					hideHighlightBox();
 					return;
 				}
 

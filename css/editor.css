@@ -23275,22 +23275,22 @@ body {
 }
 @media (min-width: 1200px) {
   body {
-    --builder-left-panel-width:300px;
-    --builder-right-panel-width:300px;
+    --builder-left-panel-width:350px;
+    --builder-right-panel-width:350px;
     --builder-component-list-element-width:44%;
   }
 }
 @media (min-width: 1600px) {
   body {
-    --builder-left-panel-width: 300px;
-    --builder-right-panel-width: 300px;
+    --builder-left-panel-width: 350px;
+    --builder-right-panel-width: 350px;
     --builder-component-list-element-width:44%;
   }
 }
 @media (min-width: 2000px) {
   body {
-    --builder-left-panel-width: 300px;
-    --builder-right-panel-width: 300px;
+    --builder-left-panel-width: 350px;
+    --builder-right-panel-width: 350px;
     --builder-component-list-element-width:44%;
   }
 }
