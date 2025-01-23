@@ -1869,8 +1869,9 @@ Vvveb.Builder = {
 		});
 
 		document.getElementById("delete-btn").addEventListener("click", function(event) {
-			document.getElementById("select-box").style.display = "none";
-			
+			hideSelectBox();
+			hideHighlightBox();
+
 			node = self.selectedEl;
 		
 			Vvveb.Undo.addMutation({type: 'childList', 
@@ -3175,6 +3176,8 @@ Vvveb.SectionList = {
 				let node = section._node;
 				node.remove();
 				section.remove();
+				hideHighlightBox();
+				hideSelectBox();
 				
 				e.stopPropagation();
 				e.preventDefault();
