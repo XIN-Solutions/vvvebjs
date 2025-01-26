@@ -11,7 +11,7 @@
     "url": "https://github.com/givanz/VvvebJs.git"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.21.2"
   },
   "keywords": [
     "vvvebjs",
@@ -28,6 +28,7 @@
   ],
   "scripts": {
     "gulp": "gulp",
+    "proxy": "npm run proxy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
