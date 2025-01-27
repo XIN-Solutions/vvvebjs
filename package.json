@@ -28,7 +28,8 @@
   ],
   "scripts": {
     "gulp": "gulp",
-    "proxy": "npm run proxy",
+    "theme_proxy": "node proxy.js",
+    "remote_theme_proxy": "node proxy.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
