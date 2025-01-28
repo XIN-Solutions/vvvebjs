@@ -2106,13 +2106,25 @@ Vvveb.Builder = {
 	 */
 	getHtmlSlots : function(keepHelperAttributes = true) {
 		let doc = window.FrameDocument;
-		const saveSlots = doc.querySelectorAll("[data-save-slot]");
-		for (const slot of saveSlots) {
-			const slotName = slot?.dataset?.saveSlot;
-			console.log(slot, slot.dataset, slotName);
+		const htmlSlots = {};
 
+		const bodyContentsList = [];
+
+		// add an element to the contents list for each not locked item directly under the body tag
+		const bodySections = doc.querySelectorAll("body > *:not([data-locked], script, noscript, link)");
+		bodySections.forEach((section) => bodyContentsList.push(section.outerHTML));
+		htmlSlots['body'] = bodyContentsList;
+
+		// for all normal save slots also write their content.
+		const saveSlots = doc.querySelectorAll("[data-content-slot]");
+		for (const slot of saveSlots) {
+			const slotName = slot.dataset.contentSlot;
+			htmlSlots[slotName] = [slot.innerHTML];
 		}
-		return {};
+
+		console.log("Slots: ", htmlSlots);
+
+		return htmlSlots;
 	},
 
 	/**
@@ -2280,8 +2292,8 @@ Vvveb.Builder = {
 
 		return fetch(saveUrl, {
 			method: "POST",  
-			headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
-			body:  nestedFormData(data)
+			headers: {'Content-Type': 'application/json; charset=UTF-8'},
+			body:  JSON.stringify(data)
 		})
 		.then((response) => {
 			if (!response.ok) {  return Promise.reject(response);  }
@@ -3255,63 +3267,67 @@ Vvveb.SectionList = {
 		let self = this;
 		document.querySelector(".sections-list").addEventListener("click", function (e) {
 			let element = e.target.closest(".add-section-btn");
-			if (element) {
-				let item = element.closest("li");
-				let section = Vvveb.Sections.get(item.dataset.type);
-				let node = generateElements(section.html)[0];
-				let sectionType = node.tagName.toLowerCase();
-				let afterSection = Vvveb.Builder.frameBody.querySelector(":scope > " + sectionType + ":last-of-type");
-				
-				if (afterSection) {
-					afterSection.after(node);
-				} else {
-					if (sectionType == "nav") {
-						afterSection = Vvveb.Builder.frameBody.querySelector(":scope > nav:first,> header:last-of-type");		
-						
-						if (afterSection) {
-							afterSection.before(node);
-						} else {
-							Vvveb.Builder.frameBody.append(node);
-						}
-					} else if (sectionType != "footer") {
-						afterSection = Vvveb.Builder.frameBody.querySelector("body > footer:last-of-type");		
-						
-						if (afterSection) {
-							afterSection.before(node);
-						} else {
-							Vvveb.Builder.frameBody.append(node);
-						}
+			if (!element) {
+				return;
+			}
+
+			let item = element.closest("li");
+			let section = Vvveb.Sections.get(item.dataset.type);
+			let node = generateElements(section.html)[0];
+			let sectionType = node.tagName.toLowerCase();
+			let afterSection = Vvveb.Builder.frameBody.querySelector(":scope > " + sectionType + ":last-of-type");
+
+			if (afterSection) {
+				afterSection.after(node);
+			}
+			else {
+				if (sectionType === "nav") {
+					afterSection = Vvveb.Builder.frameBody.querySelector(":scope > nav:first,> header:last-of-type");
+
+					if (afterSection) {
+						afterSection.before(node);
 					} else {
 						Vvveb.Builder.frameBody.append(node);
 					}
 				}
-				
-				node.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
-				//node.click();
-				Vvveb.Builder.selectNode(node);
-				Vvveb.Builder.loadNodeComponent(node);
-				/*
-				Vvveb.Builder.frameHtml.animate({
-					scrollTop: node.offset().top
-				}, 1000);
-				
-				delay(() => node.click(), 1000);
-				*/
-				
-				
-				node = node;
-				Vvveb.Undo.addMutation({type: 'childList', 
-										target: node.parentNode, 
-										addedNodes: [node], 
-										nextSibling: node.nextSibling});								
+				else if (sectionType !== "footer") {
+					afterSection = Vvveb.Builder.frameBody.querySelector("body > footer:last-of-type");
 
-				
-				self.loadSections();
-				Vvveb.TreeList.loadComponents();
-				Vvveb.TreeList.selectComponent(node);
-
-				e.preventDefault();
+					if (afterSection) {
+						afterSection.before(node);
+					} else {
+						Vvveb.Builder.frameBody.append(node);
+					}
+				} else {
+					Vvveb.Builder.frameBody.append(node);
+				}
 			}
+
+			node.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+			//node.click();
+			Vvveb.Builder.selectNode(node);
+			Vvveb.Builder.loadNodeComponent(node);
+			/*
+			Vvveb.Builder.frameHtml.animate({
+				scrollTop: node.offset().top
+			}, 1000);
+
+			delay(() => node.click(), 1000);
+			*/
+
+
+			node = node;
+			Vvveb.Undo.addMutation({type: 'childList',
+									target: node.parentNode,
+									addedNodes: [node],
+									nextSibling: node.nextSibling});
+
+
+			self.loadSections();
+			Vvveb.TreeList.loadComponents();
+			Vvveb.TreeList.selectComponent(node);
+
+			e.preventDefault();
 		});
 		
 		document.querySelector(this.selector).addEventListener("click", function (e) {
