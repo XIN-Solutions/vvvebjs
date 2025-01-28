@@ -2099,9 +2099,31 @@ Vvveb.Builder = {
 		return html;
 	},
 
+	/**
+	 *
+	 * @param keepHelperAttributes {boolean}
+	 * @returns {string:string}
+	 */
+	getHtmlSlots : function(keepHelperAttributes = true) {
+		let doc = window.FrameDocument;
+		const saveSlots = doc.querySelectorAll("[data-save-slot]");
+		for (const slot of saveSlots) {
+			const slotName = slot?.dataset?.saveSlot;
+			console.log(slot, slot.dataset, slotName);
+
+		}
+		return {};
+	},
+
+	/**
+	 * Get the HTML of the editor without certain attributes introduced by editing and chrome/moz extensions.
+	 *
+	 * @param keepHelperAttributes
+	 * @returns {*|string}
+	 */
 	getHtml: function(keepHelperAttributes = true) {
 		let doc = window.FrameDocument;
-		let hasDoctpe = (doc.doctype !== null);
+		let hasDoctype = (doc.doctype !== null);
 		let html = "";
 		
 		doc.querySelectorAll("[contenteditable]").forEach(e => e.removeAttribute("contenteditable"));
@@ -2115,7 +2137,7 @@ Vvveb.Builder = {
 		
 		window.dispatchEvent(new CustomEvent("vvveb.getHtml.before", {detail: doc}));
 
-		if (hasDoctpe) html =
+		if (hasDoctype) html =
 		"<!DOCTYPE "
          + doc.doctype.name
          + (doc.doctype.publicId ? ' PUBLIC "' + doc.doctype.publicId + '"' : '')
@@ -2245,6 +2267,12 @@ Vvveb.Builder = {
 		}
 		        
 		if (!data["startTemplateUrl"]) {
+			const slotContents = this.getHtmlSlots();
+
+			for (const slotEntry of Object.entries(slotContents)) {
+				const [slotName, html] = slotEntry;
+				data[slotName] = html;
+			}
 			data["html"] = this.getHtml();
 		}
 
