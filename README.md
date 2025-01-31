@@ -103,7 +103,7 @@ Save page function needs either php or node
 
 If you use docker, xampp or a shared hosting account php should work without any change.
 
-Saving is done using [save.php](save.php)
+Saving is done using [save.php](docs/save.php)
 
 ### Node
 
@@ -116,7 +116,7 @@ node save.js
 
 Open http://localhost:8080/editor.html
 
-Saving is done using [save.js](save.js)
+Saving is done using [save.js](docs/save.js)
 
 
 ## [Landing template](https://github.com/givanz/landing)
