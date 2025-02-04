@@ -117,7 +117,7 @@ class MediaModal {
 		this.filemanager = null;
 		this.breadcrumbs = null;
 		this.fileList = null;
-		this.mediaPath = "/public/media/";
+		this.mediaPath = window.meta?.mediaBaseUrl ?? "/public/media/";
 		this.type = "single";
 	}
 	
