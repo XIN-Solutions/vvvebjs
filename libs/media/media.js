@@ -4,7 +4,7 @@ function ucFirst(str) {
   return str[0].toUpperCase() + str.slice(1);
 }
 
-let mediaScanUrl = 'scan.php';
+let mediaScanUrl = '/media';
 
 class MediaModal {
 	constructor (modal = true)
