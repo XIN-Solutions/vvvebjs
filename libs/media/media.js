@@ -144,7 +144,7 @@ class MediaModal {
 		
 		if (!file) return;
 
-		if (file.indexOf("//") == -1) {
+		if (file.indexOf("//") === -1) {
 			src = this.mediaPath + file;
 		}
 
@@ -158,7 +158,7 @@ class MediaModal {
 
 		if (this.targetInput) {
 			let input = document.querySelector(this.targetInput);
-			input.value = file;
+			input.value = src;
 			const e = new Event("change",{bubbles: true});
 			input.dispatchEvent(e);
 			//$(this.targetInput).val(file).trigger("change");
