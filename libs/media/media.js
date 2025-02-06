@@ -62,7 +62,7 @@ class MediaModal {
 								
 							   <h3>Drop or choose files to upload</h3>
 							   
-							   <input type="file" multiple class=""> 
+							   <input type="file" name="file[]" multiple class=""> 
 								
 								<div class="status"></div>
 							</div>
@@ -656,7 +656,7 @@ _
 						<label class="form-check">\
 						<input type="hidden" value="' +  _this.mediaPath + f.path + '" name="filename[]">\
 						  <input type="' + ((_this.type == "single") ? "radio" : "checkbox") + '" class="form-check-input" value="' + f.path + '" name="file[]" ' + ((selected == "single") ? "checked" : "") + '><span class="form-check-label"></span>\
-						  <div href="#\" class="files">'+icon+'<div class="info"><div class="name">'+ name +'</div><span class="details">'+fileSize+'</span>\
+						  <div href="#\" class="files">'+icon+'<div class="info"><div class="name">'+ name +'</div>\
 							' + actions + '\
 							 <div class="preview">\
 								<img src="' + _this.mediaPath + f.path + '">\
