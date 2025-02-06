@@ -519,7 +519,7 @@ _
 					
 					let formData = new FormData();
 					formData.append("file", file);
-					formData.append("mediaPath", `/${Vvveb.MediaModal.currentPath}`);
+					formData.append("mediaPath", `${Vvveb.MediaModal.currentPath}`);
 					formData.append("onlyFilename", true);
 		
 
@@ -530,11 +530,12 @@ _
 						return response.text()
 					})
 					.then((data) => {
+						const fileName = data.split("/").pop();
+
 						let fileElement = Vvveb.MediaModal.addFile({
-							name:data,
-							type:"file",
-							path: Vvveb.MediaModal.currentPath + "/" + data,
-							size:1
+							name: fileName,
+							type: "file",
+							path: data,
 						},true);
 						
 						fileElement.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
@@ -660,7 +661,7 @@ _
 							 <div class="preview">\
 								<img src="' + _this.mediaPath + f.path + '">\
 								<div>\
-									<span class="name">'+ name +'</span><span class="details">'+fileSize+'</span>\
+									<span class="name">'+ name +'</span>\
 								</div>\
 							</div>\
 						  </div>\
