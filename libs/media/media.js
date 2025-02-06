@@ -217,32 +217,43 @@ class MediaModal {
 	}
 
 
-	initGallery() {
-		this.filemanager = document.querySelector('.filemanager'),
-		this.breadcrumbs = document.querySelector('.breadcrumbs'),
-		this.fileList = this.filemanager.querySelector('.data');
-		let _this = this;
+	/**
+	 * Scan media library
+	 */
+	scanMediaLibrary() {
+
+		const _this = this;
 
 		// Start by fetching the file data from scan.php with an AJAX request
 		fetch(mediaScanUrl)
-		.then((response) => {
-			if (!response.ok) { throw new Error(response) }
-			return response.json();
-		})
-		.then((data) => {
-			 _this.response = [data],
-			 _this.currentPath = '',
-			 _this.breadcrumbsUrls = [];
+			.then((response) => {
+				if (!response.ok) { throw new Error(response) }
+				return response.json();
+			})
+			.then((data) => {
+				_this.response = [data];
+				_this.currentPath = '';
+				_this.breadcrumbsUrls = [];
 
-			let folders = [],
-				files = [];
-				
-			window.dispatchEvent(new HashChangeEvent("hashchange"));
-		})
-		.catch(error => {
-			console.log(error.statusText);
-			displayToast("bg-danger", "Error", "Error loading media!");
-		});
+				let folders = [],
+					files = [];
+
+				window.dispatchEvent(new HashChangeEvent("hashchange"));
+			})
+			.catch(error => {
+				console.log(error.statusText);
+				displayToast("bg-danger", "Error", "Error loading media!");
+			});
+
+	}
+
+	initGallery() {
+		this.filemanager = document.querySelector('.filemanager');
+		this.breadcrumbs = document.querySelector('.breadcrumbs');
+		this.fileList = this.filemanager.querySelector('.data');
+		let _this = this;
+
+		this.scanMediaLibrary();
 
 		// This event listener monitors changes on the URL. We use it to
 		// capture back/forward navigation in the browser.
@@ -504,6 +515,8 @@ _
 
 		onUpload(event) {
 
+			const _this = this;
+
 			if (this.files && this.files[0]) {
 				Vvveb.MediaModal.showUploadLoading();
 
@@ -555,6 +568,7 @@ _
 					fileElement.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
 
 					if (files.length === 0) {
+						_this.scanMediaLibrary();
 						Vvveb.MediaModal.hideUploadLoading();
 					}
 					else {
@@ -728,7 +742,7 @@ _
 			// Empty the old result and make the new one
 
 			this.fileList.replaceChildren();//.style.display = 'none';
-			if(!scannedFolders.length && !scannedFiles.length) {
+			if(!scannedFolders.length || !scannedFiles.length) {
 				this.filemanager.querySelector('.nothingfound').style.display = '';
 			}
 			else {
