@@ -635,7 +635,16 @@ _
 
 				
 				
-				actions += '<a href="javascript:void(0);" title="Rename" class="btn btn-outline-primary btn-sm border-0 btn-rename"><i class="la la-edit"></i></a> <a href="javascript:void(0);" title="Delete" class="btn btn-outline-danger btn-sm border-0 btn-delete"><i class="la la-trash"></i></a>';
+				actions += `
+					<a href="javascript:void(0);" title="Rename" class="btn btn-outline-primary btn-sm border-0 btn-rename">
+						<i class="la la-edit"></i>
+					</a>
+					<!-- 
+					<a href="javascript:void(0);" title="Delete" class="btn btn-outline-danger btn-sm border-0 btn-delete">
+						<i class="la la-trash"></i>
+					</a>
+					-->
+				`;
 
 				const event = new CustomEvent("mediaModal:fileActions", {detail: { file: _this.mediaPath + f.path, name, fileSize, isImage, fileType, actions} });
 				window.dispatchEvent(event);			
