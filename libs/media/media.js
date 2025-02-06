@@ -507,8 +507,8 @@ _
 			if (this.files && this.files[0]) {
 				Vvveb.MediaModal.showUploadLoading();
 
-				// start sequential upload process
-				doMultiUpload(this.files);
+				// start sequential upload process (transforms FileList to array)
+				doMultiUpload([...this.files]);
 			}
 
 			/**
