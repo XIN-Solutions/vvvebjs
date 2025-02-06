@@ -515,7 +515,6 @@ _
 
 		onUpload(event) {
 
-			const _this = this;
 
 			if (this.files && this.files[0]) {
 				Vvveb.MediaModal.showUploadLoading();
@@ -568,8 +567,8 @@ _
 					fileElement.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
 
 					if (files.length === 0) {
-						_this.scanMediaLibrary();
 						Vvveb.MediaModal.hideUploadLoading();
+						Vvveb.MediaModal.scanMediaLibrary();
 					}
 					else {
 						doMultiUpload(files);
@@ -579,6 +578,7 @@ _
 				.catch(error => {
 					console.log(error);
 					Vvveb.MediaModal.hideUploadLoading();
+					Vvveb.MediaModal.scanMediaLibrary();
 					displayToast("bg-danger", "Error", "Error uploading!");
 				});
 			}
@@ -742,7 +742,7 @@ _
 			// Empty the old result and make the new one
 
 			this.fileList.replaceChildren();//.style.display = 'none';
-			if(!scannedFolders.length || !scannedFiles.length) {
+			if(!scannedFolders.length && !scannedFiles.length) {
 				this.filemanager.querySelector('.nothingfound').style.display = '';
 			}
 			else {
