@@ -503,50 +503,70 @@ _
 
 
 		onUpload(event) {
-			let file;
+
 			if (this.files && this.files[0]) {
 				Vvveb.MediaModal.showUploadLoading();
-				let reader = new FileReader();
-				reader.onload = imageIsLoaded;
-				reader.readAsDataURL(this.files[0]);
-				//reader.readAsBinaryString(this.files[0]);
-				file = this.files[0];
+
+				// start sequential upload process
+				doMultiUpload(this.files);
 			}
 
-			function imageIsLoaded(e) {
-					
-					let image = e.target.result;
-					
-					let formData = new FormData();
-					formData.append("file", file);
-					formData.append("mediaPath", `${Vvveb.MediaModal.currentPath}`);
-					formData.append("onlyFilename", true);
-		
+			/**
+			 * Shift item from front of array, load into file reader and trigger
+			 * an upload when the onload triggers on the reader. In image is loaded
+			 * there is a check to see if there are more files to uploaded, if so, it will recurse.
+			 *
+			 * @param files
+			 */
+			function doMultiUpload(files) {
+				const currentFile = files.shift();
 
-					fetch('/media/upload', {method: "POST",  body: formData})
-					.then((response) => {
-						console.log(response);
-						if (!response.ok) { throw new Error(response) }
-						return response.text()
-					})
-					.then((data) => {
-						const fileName = data.split("/").pop();
+				let reader = new FileReader();
+				reader.onload = function(e) {
+					imageIsLoaded(e, currentFile, files);
+				}
+				reader.readAsDataURL(currentFile);
+				// reader.readAsBinaryString(this.files[0]);
+			}
 
-						let fileElement = Vvveb.MediaModal.addFile({
-							name: fileName,
-							type: "file",
-							path: data,
-						},true);
-						
-						fileElement.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
-						
-						Vvveb.MediaModal.hideUploadLoading();				
-					})
-					.catch(error => {
-						console.log(error);
-						Vvveb.MediaModal.hideUploadLoading();						
-						displayToast("bg-danger", "Error", "Error uploading!");
-					});		
+
+			function imageIsLoaded(e, file, files) {
+
+				let formData = new FormData();
+				formData.append("file", file);
+				formData.append("mediaPath", `${Vvveb.MediaModal.currentPath}`);
+				formData.append("onlyFilename", true);
+
+				fetch('/media/upload', {method: "POST",  body: formData})
+				.then((response) => {
+					console.log(response);
+					if (!response.ok) { throw new Error(response) }
+					return response.text()
+				})
+				.then((data) => {
+					const fileName = data.split("/").pop();
+
+					let fileElement = Vvveb.MediaModal.addFile({
+						name: fileName,
+						type: "file",
+						path: data,
+					},true);
+
+					fileElement.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+
+					if (files.length === 0) {
+						Vvveb.MediaModal.hideUploadLoading();
+					}
+					else {
+						doMultiUpload(files);
+					}
+
+				})
+				.catch(error => {
+					console.log(error);
+					Vvveb.MediaModal.hideUploadLoading();
+					displayToast("bg-danger", "Error", "Error uploading!");
+				});
 			}
 		}	
 	
