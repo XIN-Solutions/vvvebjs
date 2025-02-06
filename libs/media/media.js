@@ -519,11 +519,11 @@ _
 					
 					let formData = new FormData();
 					formData.append("file", file);
-					formData.append("mediaPath", Vvveb.MediaModal.mediaPath + Vvveb.MediaModal.currentPath);
+					formData.append("mediaPath", `/${Vvveb.MediaModal.currentPath}`);
 					formData.append("onlyFilename", true);
 		
 
-					fetch('upload.php', {method: "POST",  body: formData})
+					fetch('/media/upload', {method: "POST",  body: formData})
 					.then((response) => {
 						console.log(response);
 						if (!response.ok) { throw new Error(response) }
