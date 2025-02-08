@@ -2302,7 +2302,7 @@ Vvveb.Builder = {
 		.then((data) => {
 			if (callback) callback(data);
 			Vvveb.Undo.reset();
-			document.querySelectorAll("#top-panel .save-btn").forEach(e => e.setAttribute("disabled", "true"));
+			// document.querySelectorAll("#top-panel .save-btn").forEach(e => e.setAttribute("disabled", "true"));
 		})
 		.catch((err) => {
 			if (error) error(err);
