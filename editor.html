@@ -78,7 +78,7 @@
 					<div class="btn-group me-2 float-end" role="group">
 					  <button class="btn btn-primary btn-sm btn-icon save-btn" title="Export (Ctrl + E)" id="save-btn"
 							  data-vvveb-action="saveAjax"
-							  data-vvveb-url="save.php"
+							  data-vvveb-url="/pages/content"
 							  data-v-vvveb-shortcut="ctrl+e"
 					  >
 
@@ -1720,45 +1720,40 @@ Vvveb.themeBaseUrl = meta?.themeBaseUrl ?? 'https://vvvebjs-theme.xin.solutions/
 <script src="libs/autocomplete/jquery.autocomplete.js"></script>
 -->
 <script>
-let renameUrl = 'save.php?action=rename';
-let deleteUrl = 'save.php?action=delete';	
-let saveReusableUrl = 'save.php?action=saveReusable';	
-let oEmbedProxyUrl = 'save.php?action=oembedProxy';
-let chatgptOptions = {"key":"","model":"gpt-3.5-turbo-instruct","temperature":0,"max_tokens":300};
+	function loadEditor() {
+		let renameUrl = 'save.php?action=rename';
+		let deleteUrl = 'save.php?action=delete';
+		let saveReusableUrl = 'save.php?action=saveReusable';
+		let oEmbedProxyUrl = 'save.php?action=oembedProxy';
+		let chatgptOptions = {"key": "", "model": "gpt-3.5-turbo-instruct", "temperature": 0, "max_tokens": 300};
 
-	let defaultPages = {
+		if (!meta?.page) {
+			alert("No content specified to load.");
+			return;
+		}
 
-		"page": meta?.page ?? {
-			name: "blank",
-			filename: "blank.html",
-			file: "blank.html",
-			url: themeBase + "/blank.html",
-			title: "Blank page",
-			folder: null,
-			description: "Template page used for new pages"
-		},
+		let pages = {"page": meta?.page};
 
-	};
+		let firstPage = Object.keys(pages)[0];
 
+		Vvveb.Builder.init(pages[firstPage]["url"], function () {
+			//load code after page is loaded here
+		});
 
-	let pages = defaultPages;
+		Vvveb.Gui.init();
+		Vvveb.FileManager.init();
+		Vvveb.SectionList.init();
+		Vvveb.TreeList.init();
+		Vvveb.Breadcrumb.init();
+		Vvveb.CssEditor.init();
 
-	let firstPage = Object.keys(pages)[0];
-	Vvveb.Builder.init(pages[firstPage]["url"], function() {
-		//load code after page is loaded here
-	});
+		Vvveb.FileManager.addPages(pages);
+		Vvveb.FileManager.loadPage(pages[firstPage]["name"]);
+		// Vvveb.Gui.toggleRightColumn();
+		Vvveb.Breadcrumb.init();
+	}
 
-	Vvveb.Gui.init();
-	Vvveb.FileManager.init();
-	Vvveb.SectionList.init();
-	Vvveb.TreeList.init();
-	Vvveb.Breadcrumb.init();
-	Vvveb.CssEditor.init();
-
-	Vvveb.FileManager.addPages(pages);
-	Vvveb.FileManager.loadPage(pages[firstPage]["name"]);
-	// Vvveb.Gui.toggleRightColumn();
-	Vvveb.Breadcrumb.init();
+	loadEditor();
 </script>
 </body>
 </html>
