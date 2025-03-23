@@ -2122,13 +2122,8 @@ Vvveb.Builder = {
 			htmlSlots[slotName] = [slot.innerHTML];
 		}
 
-		const customStyleEl = $("#vvvebjs-styles");
-
-		if (customStyleEl.length > 0) {
-			htmlSlots['customStyles'] = customStyleEl.html();
-		}
-
-		console.log("Slots: ", htmlSlots);
+		const customStyleEl = doc.querySelector("#vvvebjs-styles");
+		htmlSlots['customStyles'] = customStyleEl?.innerHTML ?? "";
 
 		return htmlSlots;
 	},
