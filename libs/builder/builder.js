@@ -794,6 +794,28 @@ Vvveb.WysiwygEditor = {
 				return false;
 		});
 
+		// Add handlers for list buttons
+		document.getElementById("ordered-list-btn").addEventListener("click", function (e) {
+				doc.execCommand('insertOrderedList', false, null);
+				e.preventDefault();
+				return false;
+		});
+
+		document.getElementById("unordered-list-btn").addEventListener("click", function (e) {
+				doc.execCommand('insertUnorderedList', false, null);
+				e.preventDefault();
+				return false;
+		});
+
+		// Add handler for heading dropdown
+		document.getElementById("heading-select").addEventListener("change", function (e) {
+				if (this.value) {
+					doc.execCommand('formatBlock', false, this.value);
+				}
+				e.preventDefault();
+				return false;
+		});
+
 		doc.addEventListener('keydown', event => {
 		  if (event.key === 'Enter') {
 			  let target = event.target.closest("[contenteditable]");
