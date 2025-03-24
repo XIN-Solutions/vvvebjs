@@ -56,7 +56,7 @@ Vvveb.WysiwygEditor = {
 		this.oldValue = element.html();
 		Vvveb.Builder.selectPadding = 10;
 		//Vvveb.Builder.highlightEnabled = false;
-		element.attr({'contenteditable':true, 'spellcheckker':false});
+		element.attr({'contenteditable':true, 'spellchecker':false});
 		
 		CKEDITOR.disableAutoInline = true;
 		ckeditorOptions.sharedSpaces.top = this.toolbar.get(0);
@@ -67,7 +67,7 @@ Vvveb.WysiwygEditor = {
 
 	destroy: function(element) {
 		//this.editor.destroy();
-		element.removeAttr('contenteditable spellcheckker');
+		element.removeAttr('contenteditable spellchecker');
 		//Vvveb.Builder.highlightEnabled = true;
 		this.toolbar.hide();
 		

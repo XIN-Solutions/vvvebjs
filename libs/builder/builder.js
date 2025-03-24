@@ -837,7 +837,7 @@ Vvveb.WysiwygEditor = {
 	
 	edit: function(element) {
 		element.setAttribute("contenteditable", true);
-		element.setAttribute("spellcheckker", false);
+		element.setAttribute("spellchecker", false);
 		document.getElementById("wysiwyg-editor").style.display = "block";
 
 		this.element = element;
@@ -852,7 +852,7 @@ Vvveb.WysiwygEditor = {
 
 	destroy: function(element) {
 		element.removeAttribute("contenteditable");
-		element.removeAttribute("spellcheckker");
+		element.removeAttribute("spellchecker");
  
 		document.getElementById("wysiwyg-editor").style.display = "none";
 		this.isActive = false;
@@ -1128,7 +1128,12 @@ Vvveb.Builder = {
 							let topPx = pos.top - (self.frameDoc.scrollTop ?? 0) - self.selectPadding;
 							let heightPx = (target.offsetHeight ?? target.clientHeight) + self.selectPadding * 2;
 
-							if (topPx < 0) {
+							const textEditing = SelectBox.classList.contains("text-edit");
+							if (textEditing && topPx < 40) {
+								heightPx += topPx - 40;
+								topPx = 40;
+							}
+							else if (topPx < 0) {
 								heightPx += topPx;
 								topPx = 0;
 							}
@@ -1658,12 +1663,14 @@ Vvveb.Builder = {
 					let pos = offset(self.selectedEl);
 
 					let SelectBox = document.getElementById("select-box");
+					const isTextEdit = (SelectBox.classList.contains("text-edit"));
 
 					SelectBox.style.top  = (pos.top - (self.frameDoc.scrollTop ?? 0)  - self.selectPadding) + "px";
 					SelectBox.style.left = (pos.left - (self.frameDoc.scrollLeft ?? 0) - self.selectPadding) + "px";
 					SelectBox.style.width = (self.texteditEl.offsetWidth + (self.selectPadding * 2)) + "px";
 					SelectBox.style.height = (self.texteditEl.offsetHeight + (self.selectPadding * 2)) + "px";
 					SelectBox.style.display = "block";
+
 				};
 
 				//update select box when the text size is changed
