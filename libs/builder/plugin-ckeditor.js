@@ -20,7 +20,18 @@ var ckeditorOptions = {
 	extraPlugins:"sharedspace",
 	sharedSpaces:{
 		top: "#wysiwyg-editor",
-	}
+	},
+	toolbar: [
+		{ name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike' ] },
+		{ name: 'lists', items: [ 'NumberedList', 'BulletedList' ] },
+		{ name: 'styles', items: [ 'Format' ] },
+		{ name: 'align', items: [ 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock' ] },
+		{ name: 'links', items: [ 'Link', 'Unlink' ] }
+	],
+	format_tags: 'p;h1;h2;h3;h4;h5',
+	removeButtons: '',
+	removePlugins: 'elementspath,resize',
+	height: '300px'
 };
 
 Vvveb.WysiwygEditor = {
