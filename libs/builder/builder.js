@@ -656,18 +656,24 @@ Vvveb.WysiwygEditor = {
 		}
 
 		if (selection.rangeCount > 0) {
-			//check if the whole text is inside an existing node to use the node directly
-			if ((selection.baseNode && selection.baseNode.nextSibling == null && selection.baseNode.previousSibling == null 
-				&& selection.anchorOffset == 0 && selection.focusOffset == selection.baseNode.length) 
-				|| (selection.anchorOffset == selection.focusOffset)) {
-					
-				element = selection.baseNode.parentNode;
-				
-			} else {
-				element = document.createElement(tag);
-				range = selection.getRangeAt(0);
-				range.surroundContents(element);
-				range.selectNodeContents(element.childNodes[0], 0); 
+			try {
+
+				//check if the whole text is inside an existing node to use the node directly
+				if ((selection.baseNode && selection.baseNode.nextSibling == null && selection.baseNode.previousSibling == null
+					&& selection.anchorOffset === 0 && selection.focusOffset === selection.baseNode.length)
+					|| (selection.anchorOffset === selection.focusOffset)) {
+
+					element = selection.baseNode.parentNode;
+
+				} else {
+					element = document.createElement(tag);
+					range = selection.getRangeAt(0);
+					range.surroundContents(element);
+					range.selectNodeContents(element.childNodes[0], 0);
+				}
+			}
+			catch (err) {
+				console.log("Couldn't get range.");
 			}
 		}
 		
@@ -710,6 +716,7 @@ Vvveb.WysiwygEditor = {
 		let self = this;
 		
 		document.getElementById("bold-btn").addEventListener("click", function (e) {
+			console.log("bold clicked.");
 				//doc.execCommand('bold',false,null);
 				//self.editorSetStyle("b", {"font-weight" : "bold"}, true);
 				self.editorSetStyle(false, {"font-weight" : "bold"}, true);
@@ -766,6 +773,7 @@ Vvveb.WysiwygEditor = {
 		document.getElementById("font-size").addEventListener("change", function (e) {
 				//doc.execCommand('fontSize',false,this.value);
 				self.editorSetStyle(false, {"font-size" : this.value});
+				this.value = '';
 				e.preventDefault();
 				return false;
 		});
@@ -781,6 +789,7 @@ Vvveb.WysiwygEditor = {
 				let element = self.editorSetStyle(false, {"font-family" : this.value});
 				Vvveb.FontsManager.addFont(option.dataset.provider, this.value, element);
 				//doc.execCommand('fontName',false,this.value);
+				this.value = '';
 				e.preventDefault();
 				return false;
 		});
@@ -812,6 +821,7 @@ Vvveb.WysiwygEditor = {
 				if (this.value) {
 					doc.execCommand('formatBlock', false, this.value);
 				}
+			    this.value = '';
 				e.preventDefault();
 				return false;
 		});
@@ -1393,6 +1403,10 @@ Vvveb.Builder = {
 		let highlightMove = function(event) {
 			if (self.highlightEnabled === true && event.target && isElement(event.target)) {
 
+				if (Vvveb.WysiwygEditor.isActive) {
+					return;
+				}
+
 				// can we edit this element?
 				if (!isEditableElement(event.target)) {
 					return;
@@ -1694,6 +1708,7 @@ Vvveb.Builder = {
 				return;
 			}
 
+
 			if (event.target) {
 
 				if (!isEditableElement(event.target)) {
@@ -1703,9 +1718,18 @@ Vvveb.Builder = {
 				}
 
 				if (Vvveb.WysiwygEditor.isActive)  {
-					if (self.texteditEl.contains(event.target)) {
+					const wysiwyg = document.getElementById('wysiwyg-editor');
+					console.log(event.target);
+					if (wysiwyg.contains(event.target)) {
+						console.log(".. inside of editor toolbar.");
 						return true;
 					}
+					if (self.texteditEl.contains(event.target)) {
+						console.log(".. inside of textedit element")
+						return true;
+					}
+
+					console.log(".. not in anything");
 				}
 				//if component properties is loaded in left panel tab instead of right panel show tab
 				let componentTab = document.querySelector(".component-properties-tab a");
