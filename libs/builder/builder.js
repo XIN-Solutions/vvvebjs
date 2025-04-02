@@ -1192,11 +1192,7 @@ Vvveb.Builder = {
 		
 		//enable save button only if changes are made
 		let setSaveButtonState = function (e) { 
-			if (Vvveb.Undo.hasChanges()){
-				document.querySelectorAll("#top-panel .save-btn").forEach(e => e.removeAttribute("disabled"));
-			} else {
-				document.querySelectorAll("#top-panel .save-btn").forEach(e => e.setAttribute("disabled", "true"));
-			}
+			document.querySelectorAll("#top-panel .save-btn").forEach(e => e.removeAttribute("disabled"));
 		};		
 		
 		Vvveb.Builder.frameBody.addEventListener("vvveb.undo.add", setSaveButtonState);		
@@ -2577,7 +2573,7 @@ Vvveb.Gui = {
 
 			let bg = "bg-success";
 			if (true || data.success || data == "success") {		
-				document.querySelectorAll("#top-panel .save-btn").forEach(e => e.setAttribute("disabled", "true"));
+				document.querySelectorAll("#top-panel .save-btn").forEach(e => e.removeAttribute("disabled"));
 			} else {
 				bg = "bg-danger";
 			}
@@ -3750,7 +3746,7 @@ Vvveb.FileManager = {
 				.then((data) => {
 						let bg = "bg-success";
 						if (data.success) {		
-							document.querySelectorAll("#top-panel .save-btn").forEach(e => e.setAttribute("disabled", "true"));
+							document.querySelectorAll("#top-panel .save-btn").forEach(e => e.removeAttribute("disabled"));
 						} else {
 							bg = "bg-danger";
 						}
@@ -3794,7 +3790,7 @@ Vvveb.FileManager = {
 				.then((data) => {
 						let bg = "bg-success";
 						if (data.success) {		
-							document.querySelectorAll("#top-panel .save-btn").forEach(e => e.setAttribute("disabled", "true"));
+							document.querySelectorAll("#top-panel .save-btn").forEach(e => e.removeAttribute("disabled"));
 						} else {
 							bg = "bg-danger";
 						}
