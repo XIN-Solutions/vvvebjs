@@ -211,6 +211,9 @@ class MediaModal {
 		
 		this.callback = callback;
 		this.init();
+		
+		// Refresh media library every time modal is opened
+		this.scanMediaLibrary();
 
 		let modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('MediaModal'));
 		if (this.isModal) modal.show();
