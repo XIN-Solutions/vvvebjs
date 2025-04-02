@@ -1673,7 +1673,15 @@ Vvveb.Builder = {
 				Vvveb.WysiwygEditor.edit(self.texteditEl);
 
 				_updateSelectBox = function(event) {
-					if (!self.texteditEl) return;
+					if (!self.texteditEl) {
+						return;
+					}
+
+					if (Vvveb.WysiwygEditor.isActive) {
+						console.log("Wysiwyg editor is active, skipping _updateSelectBox");
+						return;
+					}
+
 					let pos = offset(self.selectedEl);
 
 					let SelectBox = document.getElementById("select-box");
@@ -1707,7 +1715,6 @@ Vvveb.Builder = {
 			if (Vvveb.Builder.isPreview) {
 				return;
 			}
-
 
 			if (event.target) {
 
