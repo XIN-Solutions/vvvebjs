@@ -899,8 +899,7 @@
 							</div>
 
 
-							<!--
-							<div class="btn-group" role="group">
+							<div id="codeButton" class="btn-group d-none" role="group">
 
 								<div id="toggleEditorJsExecute" class="form-check mt-1" style="display:none">
 									<input type="checkbox" class="form-check-input" id="runjs" name="runjs" data-vvveb-action="toggleEditorJsExecute">
@@ -914,7 +913,6 @@
 								 
 
 							</div>
-							-->
 
 						</div>
 							
@@ -1787,6 +1785,13 @@ Vvveb.themeBaseUrl = meta?.themeBaseUrl ?? 'https://vvvebjs-theme.xin.solutions/
 		Vvveb.FileManager.loadPage(pages[firstPage]["name"]);
 		// Vvveb.Gui.toggleRightColumn();
 		Vvveb.Breadcrumb.init();
+
+		// if ?code=true is in the url, let's show the 'code editor'
+		const qParams = new URLSearchParams(document.location.search);
+		if (qParams.get('code') === "true") {
+			document.getElementById("codeButton").classList.remove('d-none')
+		}
+
 	}
 
 	loadEditor();
