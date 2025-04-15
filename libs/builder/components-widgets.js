@@ -16,14 +16,25 @@ limitations under the License.
 https://github.com/givanz/VvvebJs
 */
 
-Vvveb.ComponentsGroup['Widgets'] = ["widgets/googlemaps", "widgets/embed-video", "widgets/chartjs", "widgets/lottie",/* "widgets/facebookpage", */"widgets/paypal", /*"widgets/instagram",*/ "widgets/twitter", "widgets/openstreetmap"/*, "widgets/facebookcomments"*/];
+Vvveb.ComponentsGroup['Widgets'] = [
+    "widgets/googlemaps",
+    "widgets/embed-video",
+    // "widgets/chartjs",
+    "widgets/lottie",
+    /* "widgets/facebookpage", */
+    // "widgets/paypal",
+    /*"widgets/instagram",*/
+    "widgets/twitter",
+    "widgets/openstreetmap"
+    /*, "widgets/facebookcomments"*/
+];
 
 Vvveb.Components.extend("_base", "widgets/googlemaps", {
     name: "Google Maps",
     attributes: ["data-component-maps"],
     image: "icons/map.svg",
     dragHtml: '<img src="' + Vvveb.baseUrl + 'icons/maps.png">',
-    html: '<div data-component-maps><iframe frameborder="0" src="https://maps.google.com/maps?q=Bucharest&z=15&t=q&key=&output=embed" width="100%" height="100%" style="width:100%;height:100%;left:0px"></iframe></div>',
+    html: '<div data-component-maps><iframe frameborder="0" src="https://maps.google.com/maps?q=Auckland,New+Zealand&z=15&t=q&key=&output=embed" width="100%" height="100%" style="width:100%;height:100%;left:0px"></iframe></div>',
     resizable:true,//show select box resize handlers
     resizeMode:"css",
     
