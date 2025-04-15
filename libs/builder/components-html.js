@@ -1,5 +1,25 @@
-Vvveb.ComponentsGroup['Base'] =
-["html/heading", "html/image", "html/hr",  "html/form", "html/textinput", "html/textareainput", "html/selectinput"/*, "html/fileinput"*/, "html/checkbox", "html/radiobutton", "html/link", "html/button", "html/paragraph", "html/blockquote", "html/list", "html/table", "html/preformatted", "html/audio", "html/video","html/iframe"];
+Vvveb.ComponentsGroup['Base'] = [
+    "html/heading",
+    "html/image",
+    // "html/hr",
+    // "html/form",
+    // "html/textinput",
+    // "html/textareainput",
+    // "html/selectinput",
+    // "html/fileinput",
+    // "html/checkbox",
+    // "html/radiobutton",
+    "html/link",
+    "html/button",
+    "html/paragraph",
+    "html/blockquote",
+    "html/list",
+    "html/table",
+    "html/preformatted",
+    "html/audio",
+    "html/video",
+    "html/iframe"
+];
 
 Vvveb.Components.extend("_base", "html/heading", {
     image: "icons/heading.svg",
