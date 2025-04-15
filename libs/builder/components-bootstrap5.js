@@ -21,16 +21,16 @@ Vvveb.ComponentsGroup['Bootstrap 5'] = [
     "html/gridrow",
     "html/btn",
     "html/btn-link",
-    "html/buttongroup",
-    "html/buttontoolbar",
+    // "html/buttongroup",
+    // "html/buttontoolbar",
     "html/alert",
     "html/card",
-    "html/listgroup",
+    // "html/listgroup",
     "html/badge",
-    "html/progress",
-    "html/navbar",
-    "html/breadcrumbs",
-    "html/pagination"
+    // "html/progress",
+    // "html/navbar",
+    // "html/breadcrumbs",
+    // "html/pagination"
 ];
 
 
