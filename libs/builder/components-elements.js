@@ -22,7 +22,7 @@ Vvveb.ComponentsGroup['Elements'] = [
 "elements/carousel", 
 "elements/gallery",
 "elements/slider",
-"elements/tabs",
+// "elements/tabs",
 "elements/accordion",
 "elements/flip-box",
 // "elements/counter",
