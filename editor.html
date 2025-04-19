@@ -17,7 +17,8 @@
 <body>
 
 	<script>
-		const themeBase = meta?.themeBase ?? "http://localhost:9000";
+		// const themeBase = meta?.themeBase ?? "http://localhost:9000";
+		const themeBase = meta?.theme?.url ?? "http://localhost:9000";
 	</script>
 
 	<div id="vvveb-builder">
@@ -1693,7 +1694,7 @@
 <link href="libs/media/media.css" rel="stylesheet">
 <script>
 window.mediaPath = '/media';
-Vvveb.themeBaseUrl = meta?.themeBaseUrl ?? 'https://vvvebjs-theme.xin.solutions/';
+Vvveb.themeBaseUrl = meta?.theme.url;
 </script>
 <script src="libs/media/media.js"></script>
 <!--
@@ -1721,7 +1722,26 @@ Vvveb.themeBaseUrl = meta?.themeBaseUrl ?? 'https://vvvebjs-theme.xin.solutions/
 
 
 <script>
-	document.writeln('<s' + 'cript src="' + themeBase + '/sections/sections.js"></scr' + 'ipt>');
+
+	//
+	// if there are javascripts in the theme metadata, load them
+	//
+	if (meta?.theme?.metadata?.editor?.javascripts) {
+		const baseUrl = meta?.theme?.url;
+
+		if (!baseUrl) {
+			console.error('No base url found in theme metadata');
+
+		}
+		else {
+			meta.theme.metadata.editor.javascripts.forEach(function (javascript) {
+				const jsFullUrl = baseUrl + '/' + javascript;
+				console.log(" .. loading javascript: " + jsFullUrl);
+				document.writeln('<s' + 'cript src="' + jsFullUrl + '"></scr' + 'ipt>');
+			});
+		}
+	}
+
 </script>
 
 <!-- blocks-->
@@ -1729,7 +1749,7 @@ Vvveb.themeBaseUrl = meta?.themeBaseUrl ?? 'https://vvvebjs-theme.xin.solutions/
 	<script src="libs/builder/blocks-bootstrap4.js"></script>
 -->
 
-	<!-- plugins -->
+<!-- plugins -->
 
 <!-- code mirror - code editor syntax highlight -->
 <link href="libs/codemirror/lib/codemirror.css" rel="stylesheet"/>
