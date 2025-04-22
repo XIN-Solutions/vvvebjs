@@ -13,7 +13,7 @@ ImageInput = { ...ImageInput, ...{
 			this.element[0].querySelector('input[type="text"]').value = value;
 			//$('input[type="text"]', this.element).val(value);
 			let isExternalUrl = value.indexOf("//") > -1 ;
-			let src = (isExternalUrl ? '' : Vvveb.themeBaseUrl) + value;
+			let src = (isExternalUrl ? '' : Vvveb.themeBaseUrl + '/') + value;
 			this.element[0].querySelector(this.tag).src = src;
 			//$(this.tag, this.element).attr("src", src);
 		}
