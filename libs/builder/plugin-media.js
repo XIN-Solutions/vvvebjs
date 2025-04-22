@@ -10,13 +10,15 @@ ImageInput = { ...ImageInput, ...{
 
 	setValue: function(value) {
 		if (value && value.indexOf("data:image") == -1 && value != "none") {
-				this.element[0].querySelector('input[type="text"]').value = value;
-				//$('input[type="text"]', this.element).val(value);
-				let src = (value.indexOf("//") > -1 || value.indexOf("media/") > -1 || value.indexOf("image-cache/") > -1 ? '' : Vvveb.themeBaseUrl) + value
-				this.element[0].querySelector(this.tag).src = src;
-				//$(this.tag, this.element).attr("src", src);
-		} else {
-			this.element[0].querySelector(this.tag).src = Vvveb.baseUrl + 'icons/image.svg';
+			this.element[0].querySelector('input[type="text"]').value = value;
+			//$('input[type="text"]', this.element).val(value);
+			let isExternalUrl = value.indexOf("//") > -1 ;
+			let src = (isExternalUrl ? '' : Vvveb.themeBaseUrl) + value;
+			this.element[0].querySelector(this.tag).src = src;
+			//$(this.tag, this.element).attr("src", src);
+		}
+		else {
+			this.element[0].querySelector(this.tag).src = Vvveb.baseUrl + '/icons/image.svg';
 			///$(this.tag, this.element).attr("src", Vvveb.baseUrl + 'icons/image.svg');
 		}
 	},
@@ -64,7 +66,9 @@ ImageInput = { ...ImageInput, ...{
   }
 }
 
-VideoInput = { ...ImageInput, ...{
+VideoInput = {
+	...ImageInput,
+
 	tag:"video",
 
     events: [
@@ -77,5 +81,4 @@ VideoInput = { ...ImageInput, ...{
 	init: function(data) {
 		return this.render("videoinput-gallery", data);
 	},
-  }
 }

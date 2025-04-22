@@ -1,5 +1,5 @@
-let bgVideoTemplate = '<video playsinline loop muted autoplay src="../../media/sample.webm" poster="../../media/sample.webp"><video>';
-let bgImageTemplate = '<img src="../../media/4.jpg">';
+let bgVideoTemplate = '<video playsinline loop muted autoplay src="media/sample.webm" poster="media/sample.webp"><video>';
+let bgImageTemplate = '<img src="/assets/media/4.jpg">';
 let defaultSeparatorSvg = '<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 41" width="100%" height="300" fill="var(--bs-body-bg)" preserveAspectRatio="none"><defs><style>.cls-1{fill:inherit}</style></defs><title>rough-edges-bottom</title><path class="cls-1" d="M0,185l125-26,33,17,58-12s54,19,55,19,50-11,50-11l56,6,60-8,63,15v15H0Z" transform="translate(0 -159)"/></svg>';
 
 let SectionBackground = [{
