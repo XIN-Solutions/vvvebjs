@@ -1899,7 +1899,6 @@
         else {
             meta.theme.metadata.editor.javascripts.forEach(function (javascript) {
                 const jsFullUrl = baseUrl + '/' + javascript;
-                console.log(" .. loading javascript: " + jsFullUrl);
                 document.writeln('<s' + 'cript src="' + jsFullUrl + '"></scr' + 'ipt>');
             });
         }
