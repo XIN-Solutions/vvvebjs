@@ -2351,7 +2351,7 @@ Vvveb.Builder = {
 		}
 
 		document.dispatchEvent(new CustomEvent("onSaveRequest", {
-			detail: {pageDoc: window.FrameDocument
+			detail: {pageDoc: window.FrameDocument}
 		}));
 
 		if (!data["startTemplateUrl"]) {
