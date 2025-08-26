@@ -2161,7 +2161,7 @@ Vvveb.Builder = {
 	getHtmlSlots : function(keepHelperAttributes = true) {
 		let doc = window.FrameDocument;
 		const htmlSlots = {};
-		
+
 		// Remove AOS animation classes before getting HTML
 		doc.querySelectorAll('.aos-init, .aos-animate').forEach(element => {
 			element.classList.remove('aos-init');
@@ -2349,7 +2349,11 @@ Vvveb.Builder = {
 		if (!data["file"]) {
 			data["file"]  = Vvveb.FileManager.getCurrentFileName();
 		}
-		        
+
+		document.dispatchEvent(new CustomEvent("onSaveRequest", {
+			detail: {pageDoc: window.FrameDocument
+		}));
+
 		if (!data["startTemplateUrl"]) {
 			const slotContents = this.getHtmlSlots();
 
