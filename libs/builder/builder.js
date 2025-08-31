@@ -1672,7 +1672,7 @@ Vvveb.Builder = {
 					}
 
 					if (Vvveb.WysiwygEditor.isActive) {
-						console.log("Wysiwyg editor is active, skipping _updateSelectBox");
+						// console.log("Wysiwyg editor is active, skipping _updateSelectBox");
 						return;
 					}
 
@@ -1720,17 +1720,17 @@ Vvveb.Builder = {
 
 				if (Vvveb.WysiwygEditor.isActive)  {
 					const wysiwyg = document.getElementById('wysiwyg-editor');
-					console.log(event.target);
+					// console.log(event.target);
 					if (wysiwyg.contains(event.target)) {
-						console.log(".. inside of editor toolbar.");
+						// console.log(".. inside of editor toolbar.");
 						return true;
 					}
 					if (self.texteditEl.contains(event.target)) {
-						console.log(".. inside of textedit element")
+						// console.log(".. inside of textedit element")
 						return true;
 					}
 
-					console.log(".. not in anything");
+					// console.log(".. not in anything");
 				}
 				//if component properties is loaded in left panel tab instead of right panel show tab
 				let componentTab = document.querySelector(".component-properties-tab a");
