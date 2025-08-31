@@ -2366,6 +2366,10 @@ Vvveb.Builder = {
 
 		//data['elements'] = new URLSearchParams(data['elements']);
 
+		document.dispatchEvent(new CustomEvent("onSaveComplete", {
+			detail: {pageDoc: window.FrameDocument}
+		}));
+
 		return fetch(saveUrl, {
 			method: "POST",  
 			headers: {'Content-Type': 'application/json; charset=UTF-8'},
@@ -3392,7 +3396,6 @@ Vvveb.SectionList = {
 			*/
 
 
-			node = node;
 			Vvveb.Undo.addMutation({type: 'childList',
 									target: node.parentNode,
 									addedNodes: [node],
@@ -3402,6 +3405,13 @@ Vvveb.SectionList = {
 			self.loadSections();
 			Vvveb.TreeList.loadComponents();
 			Vvveb.TreeList.selectComponent(node);
+
+			window.FrameDocument.dispatchEvent(new CustomEvent("onComponentInit", {
+				detail: {
+					node
+				}
+			}));
+
 
 			e.preventDefault();
 		});
