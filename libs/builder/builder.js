@@ -917,6 +917,7 @@ Vvveb.Builder = {
 /* controls */    	
 	loadControlGroups : function() {	
 
+		const selectedEl = this.highlightEl;
 		let componentsList = document.querySelectorAll(".components-list");
 		let item = {}, component = {};
 		let count = 0;
@@ -940,27 +941,47 @@ Vvveb.Builder = {
 				//list.append('<li class="header clearfix" data-section="' + group + '"  data-search=""><label class="header" for="' + type + '_comphead_' + group + count + '">' + group + '  <div class="header-arrow"></div>\
 					//				   </label><input class="header_check" type="checkbox" checked="true" id="' + type + '_comphead_' + group + count + '">  <ol></ol></li>');
 
+				
+				let componentsSubListWrapper = list.querySelector('li[data-section="' + group + '"]');
 				let componentsSubList = list.querySelector('li[data-section="' + group + '"]  ol');
 				
 				components = Vvveb.ComponentsGroup[ group ];
 				
+				let nInGroup = 0;
 				for (i in components) {
 					componentType = components[i];
 					component = Vvveb.Components.get(componentType);
-					
-					if (component) {
-						item = generateElements(`<li data-section="${group}" data-drag-type="component" data-type="${componentType}" data-search="${component.name.toLowerCase()}">
-							<span>${component.name}</span>
-						</li>`)[0];
-
-						if (component.image) {
-
-							item.style.backgroundImage = "url(" + Vvveb.imgBaseUrl + component.image + ")"; 			
-							item.style.backgroundRepeat = "no-repeat";
-						}
-						
-						componentsSubList.append(item);
+				
+					if (!component) {
+						continue;
 					}
+
+					if (component.availableWhen) {
+						if (!selectedEl || !selectedEl.closest(component.availableWhen)) {
+							console.log(`${component.name} not available.`);
+							continue;
+						}
+						else {
+							console.log(`${component.name} available.`);
+						}
+					}
+
+					item = generateElements(`<li data-section="${group}" data-drag-type="component" data-type="${componentType}" data-search="${component.name.toLowerCase()}">
+						<span>${component.name}</span>
+					</li>`)[0];
+
+					if (component.image) {
+
+						item.style.backgroundImage = "url(" + Vvveb.imgBaseUrl + component.image + ")"; 			
+						item.style.backgroundRepeat = "no-repeat";
+					}
+					
+					componentsSubList.append(item);
+					++nInGroup;
+				}
+
+				if (nInGroup === 0) {
+					componentsSubListWrapper.remove();
 				}
 			}
 		});
@@ -1247,6 +1268,7 @@ Vvveb.Builder = {
 		Vvveb.component = Vvveb.Components.get(component);	
 		Vvveb.Components.render(component);
 		this.selectedComponent = component;
+		this.loadControlGroups();
 
 	},
 	
