@@ -1519,7 +1519,8 @@ Vvveb.Builder = {
 					SelectBox.style.height = self.selectedEl.offsetHeight + "px";
 					SelectBox.style.display = "block";
 				
-				} else if (self.isDragging) {
+				} 
+				else if (self.isDragging) {
 					let noChildren = {
 						input: true,
 						textarea: true,
@@ -1601,11 +1602,12 @@ Vvveb.Builder = {
 						 border:${self.isDragging ? "1px dashed #0d6efd":""};
 					`);
 
-					if (height < 50) {
-						document.getElementById("section-actions").classList.add("outside");	 
-					} else {
-						document.getElementById("section-actions").classList.remove("outside");	
-					}
+					// if (height < 50) {
+					// 	document.getElementById("section-actions").classList.add("outside");	 
+					// } 
+					// else {
+					// 	document.getElementById("section-actions").classList.remove("outside");	
+					// }
 
 					let elementType = self._getElementType(event.target);
 					document.querySelector("#highlight-name .type").innerHTML = elementType[0];
@@ -1838,7 +1840,7 @@ Vvveb.Builder = {
 		};
 		
 		document.querySelectorAll(".resize > div").forEach(e => e.addEventListener("mousedown", resizeDown));
-
+/*
 		document.getElementById("down-btn").addEventListener("click", function(event) {
 
 			document.getElementById("select-box").style.display = "none";
@@ -1865,7 +1867,7 @@ Vvveb.Builder = {
 			event.preventDefault();
 			return false;
 		});
-		
+		*/
 		document.getElementById("parent-btn").addEventListener("click", function(event) {
 			
 			const node = self.selectedEl.parentNode;
@@ -1968,27 +1970,29 @@ Vvveb.Builder = {
 		let addSectionBox = document.getElementById("add-section-box");
 		let addSectionElement = {};
 		
-		document.getElementById("add-section-btn").addEventListener("click", function(event) {
-			
-			addSectionElement = self.highlightEl; 
-			addSectionBox.style.display  = "block"; 
+		document.querySelectorAll("[data-add-section-btn]").forEach((el) => {
+			el.addEventListener("click", function(event) {
+				
+				addSectionElement = self.highlightEl; 
+				addSectionBox.style.display  = "block"; 
 
-			let pos = offset(addSectionElement);	
-			let top = ((pos.top + window.FrameWindow.pageYOffset + addSectionElement.clientTop) - self.frameHtml.scrollTop) + addSectionElement.offsetHeight;
-			let left = ((pos.left + window.FrameWindow.pageXOffset + addSectionElement.clientLeft) - self.frameHtml.scrollLeft) + (addSectionElement.offsetWidth / 2) - (addSectionBox.offsetWidth / 2);
-			let outerHeight = window.FrameWindow.innerHeight + self.frameHtml.scrollTop;
+				let pos = offset(addSectionElement);	
+				let top = ((pos.top + window.FrameWindow.pageYOffset + addSectionElement.clientTop) - self.frameHtml.scrollTop) + addSectionElement.offsetHeight;
+				let left = ((pos.left + window.FrameWindow.pageXOffset + addSectionElement.clientLeft) - self.frameHtml.scrollLeft) + (addSectionElement.offsetWidth / 2) - (addSectionBox.offsetWidth / 2);
+				let outerHeight = window.FrameWindow.innerHeight + self.frameHtml.scrollTop;
 
-			//check if box is out of viewport and move inside
-			if (left < 0) left = 0;
-			if (top < 0) top = 0;
-			if ((left + addSectionBox.offsetWidth) > self.frameHtml.offsetWidth) left = self.frameHtml.offsetWidth - addSectionBox.offsetWidth;
-			if (((top + addSectionBox.offsetHeight) + self.frameHtml.scrollTop) > outerHeight) top = top - addSectionBox.offsetHeight;
-			
-			addSectionBox.style.top  = top + "px"; 
-			addSectionBox.style.left  = left + "px"; 
+				//check if box is out of viewport and move inside
+				if (left < 0) left = 0;
+				if (top < 0) top = 0;
+				if ((left + addSectionBox.offsetWidth) > self.frameHtml.offsetWidth) left = self.frameHtml.offsetWidth - addSectionBox.offsetWidth;
+				if (((top + addSectionBox.offsetHeight) + self.frameHtml.scrollTop) > outerHeight) top = top - addSectionBox.offsetHeight;
+				
+				addSectionBox.style.top  = top + "px"; 
+				addSectionBox.style.left  = left + "px"; 
 
-			event.preventDefault();
-			return false;
+				event.preventDefault();
+				return false;
+			});
 		});
 		
 		document.getElementById("close-section-btn").addEventListener("click", function(event) {
@@ -2031,7 +2035,13 @@ Vvveb.Builder = {
 				let html = Vvveb.Components.get(element.dataset.type);
 				const insertionPoint = element.dataset.insertionPoint;
 
-				const shouldInsertAfter = insertionPoint || (document.querySelector("[name='add-section-insert-mode']:checked").value == "after");
+				// if an insertion point is set in the component, make sure to always insert after. otherwise rely on the setting from the interface.
+				const shouldInsertAfter = (
+					insertionPoint || 
+					(document.querySelector("[name='add-section-insert-mode']:checked").value == "after")
+				);
+
+				// add component
 				addSectionComponent(html, shouldInsertAfter, insertionPoint);
 
 				addSectionBox.style.display = "none";
