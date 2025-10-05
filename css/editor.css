@@ -24119,6 +24119,10 @@ html[data-bs-theme=dark] #vvveb-builder #top-panel img {
 #vvveb-builder #section-actions.outside {
   bottom: -30px;
 }
+
+#vvveb-builder #section-actions.slim {
+  zoom: 60%;
+}
 #vvveb-builder #section-actions a#add-section-btn {
   position: relative;
   bottom: 0px;

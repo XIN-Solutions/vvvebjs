@@ -1602,12 +1602,12 @@ Vvveb.Builder = {
 						 border:${self.isDragging ? "1px dashed #0d6efd":""};
 					`);
 
-					// if (height < 50) {
-					// 	document.getElementById("section-actions").classList.add("outside");	 
-					// } 
-					// else {
-					// 	document.getElementById("section-actions").classList.remove("outside");	
-					// }
+					if (height < 50) {
+						document.getElementById("section-actions").classList.add("slim");	 
+					} 
+					else {
+						document.getElementById("section-actions").classList.remove("slim");	
+					}
 
 					let elementType = self._getElementType(event.target);
 					document.querySelector("#highlight-name .type").innerHTML = elementType[0];
@@ -2000,16 +2000,23 @@ Vvveb.Builder = {
 		});
 		
 		function addSectionComponent(component, after = true, insertAt = null) {
-			let node = generateElements(component.html)[0];
-			
-			if (insertAt) {
-				console.log("received custom insertion point", insertAt);
-			}
+
+			// determine insertion point
 			const insertEl = insertAt ? addSectionElement.closest(insertAt) : addSectionElement;
+
+			// get html, usually string, but if function, pass component instance insertion element for dynamic fun.
+			const html = (
+				(typeof component.html === "function") 
+					? component.html(component, insertEl) 
+					: component.html
+			);
+
+			let node = generateElements(html)[0];
 
 			if (after) {
 				insertEl.after(node);
-			} else {
+			} 
+			else {
 				insertEl.append(node);
 			}
 			
