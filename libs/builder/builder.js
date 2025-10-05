@@ -956,19 +956,23 @@ Vvveb.Builder = {
 						continue;
 					}
 
+					// if component has availability limitations check that ancestor fits availability. 
 					if (component.availableWhen) {
 						if (!selectedEl || !selectedEl.closest(component.availableWhen)) {
-							console.log(`${component.name} not available.`);
 							continue;
-						}
-						else {
-							console.log(`${component.name} available.`);
 						}
 					}
 
-					item = generateElements(`<li data-section="${group}" data-drag-type="component" data-type="${componentType}" data-search="${component.name.toLowerCase()}">
-						<span>${component.name}</span>
-					</li>`)[0];
+					item = generateElements(`
+						<li data-section="${group}" 
+							data-drag-type="component" 
+							data-type="${componentType}" 
+							data-insertion-point="${component.insertionPoint}"
+							data-search="${component.name.toLowerCase()}"
+						>
+							<span>${component.name}</span>
+						</li>`
+					)[0];
 
 					if (component.image) {
 
@@ -1991,13 +1995,18 @@ Vvveb.Builder = {
 			addSectionBox.style.display = "none";
 		});
 		
-		function addSectionComponent(component, after = true) {
+		function addSectionComponent(component, after = true, insertAt = null) {
 			let node = generateElements(component.html)[0];
 			
+			if (insertAt) {
+				console.log("received custom insertion point", insertAt);
+			}
+			const insertEl = insertAt ? addSectionElement.closest(insertAt) : addSectionElement;
+
 			if (after) {
-				addSectionElement.after(node);
+				insertEl.after(node);
 			} else {
-				addSectionElement.append(node);
+				insertEl.append(node);
 			}
 			
 			if (component.afterDrop) {
@@ -2020,24 +2029,27 @@ Vvveb.Builder = {
 			let element = event.target.closest(".components-list li ol li");
 			if (element) {
 				let html = Vvveb.Components.get(element.dataset.type);
+				const insertionPoint = element.dataset.insertionPoint;
 
-				addSectionComponent(html, (document.querySelector("[name='add-section-insert-mode']:checked").value == "after"));
-
-				addSectionBox.style.display = "none";
-			}
-		});
-
-		addSectionBox.addEventListener("click", function(event) {
-			let element = event.target.closest(".blocks-list li ol li");
-			if (element) {
-				let html = Vvveb.Blocks.get(element.dataset.type);
-
-				addSectionComponent(html, (document.querySelector("[name='add-section-insert-mode']:checked").value == "after"));
+				const shouldInsertAfter = insertionPoint || (document.querySelector("[name='add-section-insert-mode']:checked").value == "after");
+				addSectionComponent(html, shouldInsertAfter, insertionPoint);
 
 				addSectionBox.style.display = "none";
 			}
 		});
-		
+
+		/*
+			addSectionBox.addEventListener("click", function(event) {
+				let element = event.target.closest(".blocks-list li ol li");
+				if (element) {
+					let html = Vvveb.Blocks.get(element.dataset.type);
+
+					addSectionComponent(html, (document.querySelector("[name='add-section-insert-mode']:checked").value == "after"));
+
+					addSectionBox.style.display = "none";
+				}
+			});
+		*/
 
 		addSectionBox.addEventListener("click", function(event) {
 			let element = event.target.closest(".sections-list li ol li");
