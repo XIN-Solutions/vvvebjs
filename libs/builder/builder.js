@@ -963,11 +963,11 @@ Vvveb.Builder = {
 						}
 					}
 
-					item = generateElements(`
+					item = generateElements(/*html*/`
 						<li data-section="${group}" 
 							data-drag-type="component" 
 							data-type="${componentType}" 
-							data-insertion-point="${component.insertionPoint}"
+							data-insertion-point="${component.insertionPoint ?? ''}"
 							data-search="${component.name.toLowerCase()}"
 						>
 							<span>${component.name}</span>
@@ -2001,6 +2001,8 @@ Vvveb.Builder = {
 		
 		function addSectionComponent(component, after = true, insertAt = null) {
 
+			console.log("Add section component: ", arguments);
+
 			// determine insertion point
 			const insertEl = insertAt ? addSectionElement.closest(insertAt) : addSectionElement;
 
@@ -2049,7 +2051,7 @@ Vvveb.Builder = {
 				);
 
 				// add component
-				addSectionComponent(html, shouldInsertAfter, insertionPoint);
+				addSectionComponent(html, shouldInsertAfter || false, insertionPoint || null);
 
 				addSectionBox.style.display = "none";
 			}
