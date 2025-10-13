@@ -17,6 +17,34 @@ https://github.com/givanz/VvvebJs
 */
 
 
+const ContentEditableTagsWhitelist = [
+	"p",
+	"span",
+	"ul",
+	"ol",
+	"li",
+	"h1",
+	"h2",
+	"h3",
+	"h4",
+	"h5",
+	"h6",
+	"a",
+	"blockquote",
+	"pre",
+	"code",
+	"label",
+	"table",
+	"thead",
+	"tbody",
+	"tfoot",
+	"tr",
+	"td",
+	"th",
+	"img"
+];
+
+
 // Simple JavaScript Templating and buildParams
 // John Resig - https://johnresig.com/ - MIT Licensed
 (function(){
@@ -1685,6 +1713,13 @@ Vvveb.Builder = {
 			}
 
 			if (!isEditableElement(event.target)) {
+				return;
+			}
+
+			const tagName = event.target.tagName.toLowerCase();
+			const leafDiv = (tagName === 'div' && Array.from(event.target.childNodes).every(node => node.nodeType === Node.TEXT_NODE));
+			if (!leafDiv && !ContentEditableTagsWhitelist.includes(tagName)) {
+				console.log(`Cannot inline edit ${tagName}`);
 				return;
 			}
 
