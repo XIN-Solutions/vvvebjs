@@ -857,7 +857,7 @@ Vvveb.Components.extend("_base", "html/paragraph", {
     nodes: ["p"],
     name: "Paragraph",
 	image: "icons/paragraph.svg",
-	html: '<p>Lorem ipsum</p>',
+	html: '<p>Ut officia mollit consequat nulla quis officia nisi irure.</p>',
     properties: [{
         name: "Text align",
         key: "p-text-align",
