@@ -41,7 +41,11 @@ const ContentEditableTagsWhitelist = [
 	"tr",
 	"td",
 	"th",
-	"img"
+	"img",
+	"strong",
+	"i",
+	"em",
+	"b",
 ];
 
 
@@ -880,15 +884,38 @@ Vvveb.WysiwygEditor = {
 
 		evt.preventDefault();
 		const plainText = event.clipboardData.getData("text/plain");
-		window.FrameDocument.execCommand("insertText", false, plainText);
+		if (!plainText) {
+			return;
+		}
+
+		const fWindow = window.FrameWindow;
+		// window.FrameDocument.execCommand("insertText", false, plainText.trim());
+
+		// Convert newlines to <br> tags for explicit line breaks
+        // Also handle carriage returns if present (\r\n from Windows notepads)
+        const htmlToInsert = plainText.replace(/\r?\n/g, "<br>");
+
+        // Get the current selection and range
+        const selection = fWindow.getSelection();
+        if (!selection.rangeCount) {
+			return;
+		}
+
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+
+        const fragment = range.createContextualFragment(htmlToInsert);
+        range.insertNode(fragment);
+
+        // Collapse the range to the end of the newly inserted content
+        // and update the selection to place the caret there.
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
 
 	},
 	
-	/**
-	 *
-	 *
-	 * @param {*} element
-	 */
+
 	edit: function(element) {
 		element.setAttribute("contenteditable", true);
 		element.setAttribute("spellchecker", false);
@@ -1739,7 +1766,15 @@ Vvveb.Builder = {
 			}
 
 			const tagName = event.target.tagName.toLowerCase();
-			const leafDiv = (tagName === 'div' && Array.from(event.target.childNodes).every(node => node.nodeType === Node.TEXT_NODE));
+			const allowedInDiv = ['i', 'b', 'em', 'strong'];
+			const leafDiv = (
+				tagName === 'div' &&
+				Array.from(event.target.childNodes).every(
+					node => node.nodeType === Node.TEXT_NODE || 
+							(node.nodeType === Node.ELEMENT_NODE && allowedInDiv.includes(node.tagName.toLowerCase()))
+				)
+			);
+			
 			if (!leafDiv && !ContentEditableTagsWhitelist.includes(tagName)) {
 				console.log(`Cannot inline edit ${tagName}`);
 				return;
@@ -2287,7 +2322,7 @@ Vvveb.Builder = {
 		const bodyContentsList = [];
 
 		// add an element to the contents list for each not locked item directly under the body tag
-		const bodySections = doc.querySelectorAll("body > *:not([data-locked], script, noscript, link)");
+		const bodySections = doc.querySelectorAll("body > :not([data-locked], script, noscript, link, span)");
 		bodySections.forEach((section) => bodyContentsList.push(section.outerHTML));
 		htmlSlots['body'] = bodyContentsList;
 
@@ -2471,7 +2506,9 @@ Vvveb.Builder = {
 				const [slotName, html] = slotEntry;
 				data[slotName] = html;
 			}
-			data["html"] = this.getHtml();
+
+			// LEGACY -- all slot based now, just causing issues at this point. 
+			// data["html"] = this.getHtml();
 		}
 
 		//data['elements'] = new URLSearchParams(data['elements']);
