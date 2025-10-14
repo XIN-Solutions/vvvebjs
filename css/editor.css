@@ -24578,6 +24578,8 @@ html[data-bs-theme=dark] li[data-type][data-drag-type=component] a {
 }
 .blocks .drag-elements-sidepane li[data-type] img.preview, .sections .drag-elements-sidepane li[data-type] img.preview {
   max-width: 100%;
+  max-height: 150px;
+  object-fit: cover;
 }
 .blocks .drag-elements-sidepane li[data-type] .name, .sections .drag-elements-sidepane li[data-type] .name {
   visibility: hidden;

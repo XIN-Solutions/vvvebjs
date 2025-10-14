@@ -870,10 +870,30 @@ Vvveb.WysiwygEditor = {
 	redo: function(element) {
 		this.doc.execCommand('redo',false,null);
 	},
+
+	/**
+	 * Paste handler that inserts information as plain text rather than special HTMLy stuff.
+	 *
+	 * @param {*} evt
+	 */
+	pasteHandler: function(evt) {
+
+		evt.preventDefault();
+		const plainText = event.clipboardData.getData("text/plain");
+		window.FrameDocument.execCommand("insertText", false, plainText);
+
+	},
 	
+	/**
+	 *
+	 *
+	 * @param {*} element
+	 */
 	edit: function(element) {
 		element.setAttribute("contenteditable", true);
 		element.setAttribute("spellchecker", false);
+		element.addEventListener('paste', this.pasteHandler);
+
 		document.getElementById("wysiwyg-editor").style.display = "block";
 
 		this.element = element;
@@ -889,7 +909,9 @@ Vvveb.WysiwygEditor = {
 	destroy: function(element) {
 		element.removeAttribute("contenteditable");
 		element.removeAttribute("spellchecker");
- 
+		
+		element.removeEventListener("paste", this.pasteHandler);
+
 		document.getElementById("wysiwyg-editor").style.display = "none";
 		this.isActive = false;
 
