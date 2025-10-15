@@ -1078,14 +1078,15 @@ Vvveb.Builder = {
 			list.replaceChildren();
 
 			for (group in Vvveb.SectionsGroup) {
-				list.append(generateElements(
-				`<li class="header" data-section="${group}"  data-search="">
-					<label class="header" for="${type}_sectionhead_${group}">
-						${group}<div class="header-arrow"></div>
-					</label>
-					<input class="header_check" type="checkbox" checked="true" id="${type}_sectionhead_${group}">
-					<ol></ol>
-				</li>`)[0]);
+				list.append(generateElements(/*html*/`
+					<li class="header" data-section="${group}"  data-search="">
+						<label class="header" for="${type}_sectionhead_${group}">
+							${group}<div class="header-arrow"></div>
+						</label>
+						<input class="header_check" type="checkbox" checked="true" id="${type}_sectionhead_${group}">
+						<ol></ol>
+					</li>`
+				)[0]);
 
 				let sectionsSubList = list.querySelector('li[data-section="' + group + '"]  ol');
 				sections = Vvveb.SectionsGroup[ group ];
@@ -1438,6 +1439,21 @@ Vvveb.Builder = {
 		
 	},
 	
+
+	/**
+	 * Destroy the editor
+	 */
+	destroyEditor: function() {
+		const selectBox = document.getElementById("select-box");
+		const selectActions = document.getElementById("select-actions");
+
+		Vvveb.WysiwygEditor.destroy(this.texteditEl);
+		
+		this.selectPadding = 0;
+		selectBox.classList.remove("text-edit");
+		selectActions.style.display = "";
+		this.texteditEl = null;
+	},
 	
 	selectNode:  function(node) {
 		let SelectBox = document.getElementById("select-box");
@@ -1453,11 +1469,7 @@ Vvveb.Builder = {
 		let elementType = this._getElementType(node);
 		
 		if (self.texteditEl && (self.selectedEl != node)) {
-			Vvveb.WysiwygEditor.destroy(self.texteditEl);
-			self.selectPadding = 0;
-			SelectBox.classList.remove("text-edit");
-			SelectActions.style.display = "";
-			self.texteditEl = null;
+			self.destroyEditor();
 		}
 
 		if (elementType[1] == "BODY") {
@@ -1515,7 +1527,6 @@ Vvveb.Builder = {
 				}
 
 				self.highlightEl = target = event.target;
-
 
 				let pos = offset(target);
 				let height = target.offsetHeight;
@@ -1689,6 +1700,8 @@ Vvveb.Builder = {
 					let elementType = self._getElementType(event.target);
 					document.querySelector("#highlight-name .type").innerHTML = elementType[0];
 					document.querySelector("#highlight-name .name").innerHTML = elementType[1];
+
+					self.loadControlGroups();
 				}
 			}	
 			
@@ -2093,8 +2106,6 @@ Vvveb.Builder = {
 		
 		function addSectionComponent(component, after = true, insertAt = null) {
 
-			console.log("Add section component: ", arguments);
-
 			// determine insertion point
 			const insertEl = insertAt ? addSectionElement.closest(insertAt) : addSectionElement;
 
@@ -2491,6 +2502,11 @@ Vvveb.Builder = {
 	},
 	
 	saveAjax: function(data, saveUrl, callback, error ) {
+
+		if (Vvveb.WysiwygEditor.isActive) {
+			this.destroyEditor(this.texteditEl);
+		}
+
 		if (!data["file"]) {
 			data["file"]  = Vvveb.FileManager.getCurrentFileName();
 		}
