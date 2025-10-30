@@ -564,21 +564,26 @@
 
                 <div class="loading-message active">
                     <div class="animation-container">
-                        <div class="dot dot-1"></div>
-                        <div class="dot dot-2"></div>
-                        <div class="dot dot-3"></div>
+                        <div style="width: 64px; height: 64px;">
+                            <svg fill="#1D294DFF" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" style="animation:spin 0.75s linear infinite;">
+                                <style>
+                                    @keyframes spin {
+                                        100% {
+                                            transform: rotate(360deg);
+                                        }
+                                    }
+                                </style>
+                                <!-- Larger white circle as background -->
+                                <circle cx="14" cy="14" r="13" fill="#fff" opacity="1" />
+                                <g transform="translate(2,2)">
+                                    <path d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25" />
+                                    <path
+                                        d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z">
+                                    </path>
+                                </g>
+                            </svg>
+                        </div>
                     </div>
-
-                    <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
-                        <defs>
-                            <filter id="goo">
-                                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"/>
-                                <feColorMatrix in="blur" mode="matrix"
-                                               values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 21 -7"/>
-                            </filter>
-                        </defs>
-                    </svg>
-                    <!-- https://codepen.io/Izumenko/pen/MpWyXK -->
                 </div>
 
 
@@ -1896,8 +1901,11 @@
         }
         else {
             meta.theme.metadata.editor.javascripts.forEach(function (javascript) {
-                const jsFullUrl = baseUrl + '/' + javascript;
-                document.writeln('<s' + 'cript src="' + jsFullUrl + '"></scr' + 'ipt>');
+                const isAbsoluteUrl = javascript.indexOf("://") !== -1;
+                const cacheBust = `?v=${new Date().getTime()}`;
+                const jsFullUrl = isAbsoluteUrl ? javascript : (baseUrl + '/' + javascript);
+
+                document.writeln('<s' + 'cript src="' + jsFullUrl + cacheBust + '"></scr' + 'ipt>');
             });
         }
     }
