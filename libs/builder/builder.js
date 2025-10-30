@@ -1035,8 +1035,26 @@ Vvveb.Builder = {
 
 					// if component has availability limitations check that ancestor fits availability. 
 					if (component.availableWhen) {
-						if (!selectedEl || !selectedEl.closest(component.availableWhen)) {
-							continue;
+
+						try {
+							// nothing selected?
+							if (!selectedEl) {
+								continue;
+							}
+							// function and it returns false? continue.
+							if (typeof component.availableWhen === 'function') {
+								if (!component.availableWhen(selectedEl)) {
+									continue;
+								}
+							}
+							
+							// selector string, but nothing found in parent, continue.
+							if (typeof component.availableWhen === 'string' && !selectedEl.closest(component.availableWhen)) {
+								continue;
+							}
+						}
+						catch (err) {
+							console.log("[builder] couldn't determine availability:", err.message);
 						}
 					}
 
