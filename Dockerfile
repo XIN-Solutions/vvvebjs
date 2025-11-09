@@ -1,8 +1,9 @@
-FROM php:8.3-apache
+FROM caddy:2-alpine
+COPY . /usr/share/caddy
 
-ARG UNAME=www-data
-ARG UGROUP=www-data
-ARG UID=1000
-ARG GID=1001
-RUN usermod  --uid $UID $UNAME
-RUN groupmod --gid $GID $UGROUP
+RUN <<'EOF' > /etc/caddy/Caddyfile
+:80 {
+    root * /usr/share/caddy
+    file_server
+}
+EOF
