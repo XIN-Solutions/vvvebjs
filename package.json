@@ -30,7 +30,8 @@
     "gulp": "gulp",
     "theme_proxy": "node proxy.js",
     "remote_theme_proxy": "node proxy.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "TAG=$(date +%Y%m%d_%H%M) && docker build -f Dockerfile -t dr.xinsolutions.co.nz/exoh/exoh-editor:$TAG -t dr.xinsolutions.co.nz/exoh/exoh-editor:latest . && echo \"Built dr.xinsolutions.co.nz/exoh/exoh-editor:$TAG\""
   },
   "devDependencies": {
     "gulp": "^4.0.2",
