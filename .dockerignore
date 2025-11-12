@@ -1,1 +1,12 @@
-*
+.github/
+scss/
+.gitattributes
+.gitignore
+.gitmodules
+Credits.md
+Dockerfile
+gulpfile.js
+LICENSE
+package*
+proxy.js
+README.md
