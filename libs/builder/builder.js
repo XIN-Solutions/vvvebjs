@@ -2336,12 +2336,6 @@ Vvveb.Builder = {
 		let doc = window.FrameDocument;
 		const htmlSlots = {};
 
-		// Remove AOS animation classes before getting HTML
-		doc.querySelectorAll('.aos-init, .aos-animate').forEach(element => {
-			element.classList.remove('aos-init');
-			element.classList.remove('aos-animate'); 
-		});
-
 		// clear out all dynamic data.
 		doc.querySelectorAll('[data-widget]').forEach(element => {
 			element._innerHTML = element.innerHTML;
