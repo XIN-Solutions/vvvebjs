@@ -12,8 +12,9 @@ ImageInput = { ...ImageInput, ...{
 		if (value && value.indexOf("data:image") == -1 && value != "none") {
 			this.element[0].querySelector('input[type="text"]').value = value;
 			//$('input[type="text"]', this.element).val(value);
-			let isExternalUrl = value.indexOf("//") > -1 ;
-			let src = (isExternalUrl ? '' : Vvveb.themeBaseUrl + '/') + value;
+			let isExternalUrl = value.indexOf("//") > -1;
+			let needsSlash = value[0] !== '/';
+			let src = (isExternalUrl ? '' : Vvveb.themeBaseUrl + (needsSlash ? '/' : '')) + value;			
 			this.element[0].querySelector(this.tag).src = src;
 			//$(this.tag, this.element).attr("src", src);
 		}
