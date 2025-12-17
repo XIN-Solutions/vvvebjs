@@ -1062,6 +1062,7 @@ Vvveb.Builder = {
 						<li data-section="${group}" 
 							data-drag-type="component" 
 							data-type="${componentType}" 
+							data-insertion-relative-to="${component.insertionRelativeTo ?? ''}"
 							data-insertion-point="${component.insertionPoint ?? ''}"
 							data-search="${component.name.toLowerCase()}"
 						>
@@ -2122,10 +2123,20 @@ Vvveb.Builder = {
 			addSectionBox.style.display = "none";
 		});
 		
-		function addSectionComponent(component, after = true, insertAt = null) {
+		function addSectionComponent(component, after = true, insertAt = null, insertionRelativeTo = null) {
 
 			// determine insertion point
-			const insertEl = insertAt ? addSectionElement.closest(insertAt) : addSectionElement;
+			let insertEl;
+
+			if (insertionRelativeTo && insertAt) {
+				insertEl = addSectionElement.closest(insertionRelativeTo).querySelector(insertAt);
+			}
+			else if (insertAt) {
+				insertEl = addSectionElement.closest(insertAt);
+			}
+			else {
+				insertEl = addSectionElement;
+			}
 
 			// get html, usually string, but if function, pass component instance insertion element for dynamic fun.
 			const html = (
@@ -2164,6 +2175,7 @@ Vvveb.Builder = {
 			if (element) {
 				let html = Vvveb.Components.get(element.dataset.type);
 				const insertionPoint = element.dataset.insertionPoint;
+				const insertionRelativeTo = element.dataset.insertionRelativeTo;
 
 				// if an insertion point is set in the component, make sure to always insert after. otherwise rely on the setting from the interface.
 				const shouldInsertAfter = (
@@ -2172,7 +2184,7 @@ Vvveb.Builder = {
 				);
 
 				// add component
-				addSectionComponent(html, shouldInsertAfter || false, insertionPoint || null);
+				addSectionComponent(html, shouldInsertAfter || false, insertionPoint || null, insertionRelativeTo || null);
 
 				addSectionBox.style.display = "none";
 			}
