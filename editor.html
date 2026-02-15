@@ -1889,26 +1889,32 @@
 
 
 <script>
+    (function() {
+        const cacheBust = `?v=${new Date().getTime()}`;
 
-    //
-    // if there are javascripts in the theme metadata, load them
-    //
-    if (meta?.theme?.metadata?.editor?.javascripts) {
-        const baseUrl = meta?.theme?.url;
+        //
+        // if there are javascripts in the theme metadata, load them
+        //
+        if (meta?.theme?.metadata?.editor?.javascripts) {
+            const baseUrl = meta?.theme?.url;
 
-        if (!baseUrl) {
-            console.error('No base url found in theme metadata');
+            if (!baseUrl) {
+                console.error('No base url found in theme metadata');
+            }
+            else {
+                meta.theme.metadata.editor.javascripts.forEach(function (javascript) {
+                    const isAbsoluteUrl = javascript.indexOf("://") !== -1;
+                    const jsFullUrl = isAbsoluteUrl ? javascript : (baseUrl + '/' + javascript);
+
+                    document.writeln('<s' + 'cript src="' + jsFullUrl + cacheBust + '"></scr' + 'ipt>');
+                });
+            }
         }
-        else {
-            meta.theme.metadata.editor.javascripts.forEach(function (javascript) {
-                const isAbsoluteUrl = javascript.indexOf("://") !== -1;
-                const cacheBust = `?v=${new Date().getTime()}`;
-                const jsFullUrl = isAbsoluteUrl ? javascript : (baseUrl + '/' + javascript);
+        
 
-                document.writeln('<s' + 'cript src="' + jsFullUrl + cacheBust + '"></scr' + 'ipt>');
-            });
-        }
-    }
+        const programmaticSectionsJs = "/sections/" + meta.theme.id + ".js";
+        document.writeln('<s' + 'cript src="' + programmaticSectionsJs + cacheBust + '"></scr' + 'ipt>');
+    })();
 
 </script>
 
