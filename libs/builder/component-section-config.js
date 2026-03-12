@@ -30,15 +30,93 @@
         );
     }
 
+    const MODAL_ID = "SectionConfigModal";
+
+    function getSectionConfigModalHtml() {
+        return /*html*/`
+            <div class="modal fade lumen-bs" id="${MODAL_ID}" tabindex="-1" role="dialog" aria-labelledby="${MODAL_ID}Label" aria-hidden="true">
+              <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title fw-normal" id="${MODAL_ID}Label">Component Configuration</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body section-config-modal-body"></div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-icon" data-bs-dismiss="modal">
+                      <i class="la la-times"></i>
+                      <span>Cancel</span>
+                    </button>
+                    <button type="button" class="btn btn-primary btn-icon" data-section-config-update>
+                      <i class="la la-check"></i>
+                      <span>Update</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        `;
+    }
+
+    function ensureSectionConfigModalInDom() {
+        if (!document.getElementById(MODAL_ID)) {
+            document.body.append(generateElements(getSectionConfigModalHtml())[0]);
+
+            const modalEl = document.getElementById(MODAL_ID);
+            modalEl.addEventListener("click", (e) => {
+                const target = e.target.closest("[data-section-config-update]");
+                if (!target) {
+                    return;
+                }
+                e.preventDefault();
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+                displayToast("bg-success", "Updated", "Component configuration updated.");
+            });
+        }
+    }
+
+    /**
+     * Open the section configuration mail
+     *
+     * @param data
+     * @param data.html {string}
+     * @param data.success {boolean}
+     * @param title {string} the title of the dialog
+     */
+    function openSectionConfigModal(data, title) {
+        ensureSectionConfigModalInDom();
+
+        const bodyEl = document.querySelector(`#${MODAL_ID} .section-config-modal-body`);
+        const titleEl = document.querySelector(`#${MODAL_ID} .modal-title`);
+
+        if (bodyEl) {
+            bodyEl.innerHTML = data.html || "";
+        }
+        if (titleEl) {
+            titleEl.textContent = title || "Component Configuration";
+        }
+
+        const modalEl = document.getElementById(MODAL_ID);
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+
     /**
      * Assign the event handler
-     * @param btn
-     * @param data
+     * @param btn {Element} the button to be added to
+     * @param data {object}
+     * @param data.html {string}
+     * @param data.success {boolean}
+     * @param {{ group: string, component: string }} componentInfo
      */
-    function assignEventHandlerToButton(btn, data) {
+    function assignEventHandlerToButton(btn, data, componentInfo) {
         btn.disabled = false;
+
+        ensureSectionConfigModalInDom();
+
         btn.addEventListener("click", () => {
-            console.log(data.html);
+            openSectionConfigModal(data, "Component Configuration");
         });
     }
 
@@ -47,14 +125,15 @@
      *
      * @param dialogUrl {string} where to fetch the details from
      * @param btn {Element} where to attach the resulting information to.
+     * @param componentInfo {{ group: string, component: string }}
      */
-    function fetchDialogContent(dialogUrl, btn) {
+    function fetchDialogContent(dialogUrl, btn, componentInfo) {
         fetch(dialogUrl)
             .then((r) => r.json())
             .then((data) => {
                 if (data.success && data.html) {
                     console.log("[SectionConfigButtonInput] Successfully retrieved dialog content");
-                    assignEventHandlerToButton(btn, data);
+                    assignEventHandlerToButton(btn, data, componentInfo);
                 }
                 else {
                     console.log("[SectionConfigButtonInput] Couldn't retrieve dialog content:", data);
@@ -116,8 +195,7 @@
 
             console.log("[SectionConfigButtonInput] Requesting dialog:", dialogUrl);
 
-            // asynchronous but unawaited.
-            fetchDialogContent(dialogUrl, btn);
+            fetchDialogContent(dialogUrl, btn, { group, component });
 
             console.log("Returning: ", container);
             return container;
