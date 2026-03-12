@@ -63,10 +63,6 @@
             const doc = parser.parseFromString(html, "text/html");
             const newContent = doc.body.firstChild || doc.body;
 
-            if (section.hasAttribute("data-section-dialog")) {
-                newContent.setAttribute("data-section-dialog", section.getAttribute("data-section-dialog"));
-            }
-
             newContent.setAttribute("data-section-initialized", true);
 
             section.outerHTML = newContent.outerHTML || html;
