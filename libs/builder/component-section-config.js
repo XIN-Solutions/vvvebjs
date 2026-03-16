@@ -34,14 +34,14 @@
 
     function getSectionConfigModalHtml() {
         return /*html*/`
-            <div class="modal fade lumen-bs" id="${MODAL_ID}" tabindex="-1" role="dialog" aria-labelledby="${MODAL_ID}Label" aria-hidden="true">
+            <div class="modal fade flatly-bs" id="${MODAL_ID}" tabindex="-1" role="dialog" aria-labelledby="${MODAL_ID}Label" aria-hidden="true">
               <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
                     <h5 class="modal-title fw-normal" id="${MODAL_ID}Label">Component Configuration</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
-                  <div class="modal-body section-config-modal-body"></div>
+                  <div class="modal-body section-config-modal-body" style="padding: 30px;"></div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-icon" data-bs-dismiss="modal">
                       <i class="la la-times"></i>
@@ -63,6 +63,7 @@
             document.body.append(generateElements(getSectionConfigModalHtml())[0]);
 
             const modalEl = document.getElementById(MODAL_ID);
+
             modalEl.addEventListener("click", (e) => {
                 const target = e.target.closest("[data-section-config-update]");
                 if (!target) {
@@ -76,30 +77,80 @@
         }
     }
 
+    function updateButtonCallback(event) {
+        const modalForm = event.target.closest(".modal").querySelector("form");
+        modalForm.dispatchEvent(new CustomEvent('get'));
+    }
+
+
     /**
      * Open the section configuration mail
      *
-     * @param data
-     * @param data.html {string}
-     * @param data.success {boolean}
+     * @param data {object} the loaded dialog object
+     * @param data.html {string} the HTML for this object
+     * @param data.success {boolean} the success
+     *
      * @param title {string} the title of the dialog
+     * @param componentConfig {{ group: string, component: string, config: object }} the configuration of the component
      */
-    function openSectionConfigModal(data, title) {
-        ensureSectionConfigModalInDom();
+    function openSectionConfigModal(data, title, componentConfig) {
+        return new Promise((resolve, reject) => {
+            ensureSectionConfigModalInDom();
 
-        const bodyEl = document.querySelector(`#${MODAL_ID} .section-config-modal-body`);
-        const titleEl = document.querySelector(`#${MODAL_ID} .modal-title`);
+            const bodyEl = document.querySelector(`#${MODAL_ID} .section-config-modal-body`);
+            const titleEl = document.querySelector(`#${MODAL_ID} .modal-title`);
+            const updateButtonEl = document.querySelector(`#${MODAL_ID} [data-section-config-update]`);
 
-        if (bodyEl) {
-            bodyEl.innerHTML = data.html || "";
-        }
-        if (titleEl) {
-            titleEl.textContent = title || "Component Configuration";
-        }
+            if (bodyEl) {
+                bodyEl.innerHTML = data.html || "";
+            }
+            if (titleEl) {
+                titleEl.textContent = title || "Component Configuration";
+            }
 
-        const modalEl = document.getElementById(MODAL_ID);
-        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        modal.show();
+
+            const modalEl = document.getElementById(MODAL_ID);
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+
+            // remove any existing click handlers
+            updateButtonEl.removeEventListener("click", updateButtonCallback);
+
+            // add new update click handler
+            updateButtonEl.addEventListener("click", updateButtonCallback);
+
+            // wait for dom to settle and initialise configuration
+            setTimeout(async () => {
+                const formEl = bodyEl.querySelector('form');
+
+                const resolverPromise = new Promise((resolve, _) => {
+
+                    const formConfig = {
+                        detail: {
+                            config: componentConfig.config,
+                            configResolver: resolve
+                        },
+                    };
+
+                    /*
+                      next:
+
+                        ////// -----------------------------
+
+                        3. store configuration onto section
+                        4. rerender section html with new config
+                     */
+
+                    // load configuration and provide configuration resolver promise to alpine component
+                    formEl.dispatchEvent(new CustomEvent("set", formConfig));
+                });
+
+                const outgoingDialogConfig = await resolverPromise;
+                resolve(outgoingDialogConfig);
+            }, 0);
+
+        });
+
     }
 
     /**
@@ -108,15 +159,16 @@
      * @param data {object}
      * @param data.html {string}
      * @param data.success {boolean}
-     * @param {{ group: string, component: string }} componentInfo
+     * @param componentInfo {{ group: string, component: string, config: object }}
      */
     function assignEventHandlerToButton(btn, data, componentInfo) {
         btn.disabled = false;
 
         ensureSectionConfigModalInDom();
 
-        btn.addEventListener("click", () => {
-            openSectionConfigModal(data, "Component Configuration");
+        btn.addEventListener("click", async () => {
+            const dialogCfg = await openSectionConfigModal(data, "Component Configuration", componentInfo);
+            console.log("Output: ", dialogCfg);
         });
     }
 
@@ -125,23 +177,24 @@
      *
      * @param dialogUrl {string} where to fetch the details from
      * @param btn {Element} where to attach the resulting information to.
-     * @param componentInfo {{ group: string, component: string }}
      */
-    function fetchDialogContent(dialogUrl, btn, componentInfo) {
-        fetch(dialogUrl)
-            .then((r) => r.json())
-            .then((data) => {
-                if (data.success && data.html) {
-                    console.log("[SectionConfigButtonInput] Successfully retrieved dialog content");
-                    assignEventHandlerToButton(btn, data, componentInfo);
-                }
-                else {
-                    console.log("[SectionConfigButtonInput] Couldn't retrieve dialog content:", data);
-                }
-            })
-            .catch((err) => {
-                console.error("[SectionConfigButtonInput] Couldn't retrieve the dialog content.");
-            });
+    async function fetchDialogContent(dialogUrl) {
+        try {
+            const response = await fetch(dialogUrl)
+            const data = await response.json();
+            if (data.success && data.html) {
+                console.log("[SectionConfigButtonInput] Successfully retrieved dialog content");
+                return data;
+            }
+            else {
+                console.log("[SectionConfigButtonInput] Couldn't retrieve dialog content:", data);
+                return null;
+            }
+        }
+        catch (err) {
+            console.error("[SectionConfigButtonInput] Couldn't retrieve the dialog content.");
+            return null;
+        }
     }
 
     let SectionConfigButtonInput = {
@@ -192,12 +245,36 @@
             }
 
             const dialogUrl = createDialogDetailsUrl(themeId, group, component);
-
             console.log("[SectionConfigButtonInput] Requesting dialog:", dialogUrl);
 
-            fetchDialogContent(dialogUrl, btn, { group, component });
+            // go get the dialog
+            fetchDialogContent(dialogUrl)
+                .then((dialogData) => {
 
-            console.log("Returning: ", container);
+                    // nothing retrieved? exit.
+                    if (!dialogData) {
+                        console.log("Didn't get any dialog data for this component.");
+                        return;
+                    }
+
+                    // TODO: get the component info
+                    const componentInfo = {
+                        group,
+                        component,
+                        config: {
+                            "badgeType": "danger",
+                            "imagePosition": "right",
+                            "displayMode": "detailed",
+                            "enableAnimation": true,
+                            "featureTitle": "Lorem ipsum dolor sit amet. 1",
+                            "featureDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ullamcorper, dui vitae ullamcorper rutrum. 2"
+                        }
+                    };
+
+                    // assign to modal button.
+                    assignEventHandlerToButton(btn, dialogData, componentInfo);
+                });
+
             return container;
         },
 
