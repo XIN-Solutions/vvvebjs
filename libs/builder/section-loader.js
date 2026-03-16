@@ -37,8 +37,13 @@
         let model = {};
         try {
             const raw = section.getAttribute("data-section-model");
-            if (raw) model = JSON.parse(raw);
-        } catch (e) {}
+            if (raw) {
+                model = JSON.parse(raw);
+            }
+        }
+        catch (ex) {
+            log("Couldn't initialise model: ", ex);
+        }
 
         const url = "/sections/" + encodeURIComponent(THEME_ID) + "/" + encodeURIComponent(group) + "/" + encodeURIComponent(component) + "/render";
 
