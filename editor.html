@@ -13,7 +13,7 @@
     <title>Page Editor - XO</title>
 
     <link href="css/editor.css" rel="stylesheet">
-    <link href="css/flatly.bootstrap.css" rel="stylesheet">
+<!--    <link href="css/flatly.bootstrap.css" rel="stylesheet">-->
 
 </head>
 <body>
@@ -1936,6 +1936,14 @@
 
 
 <script>
+    function showLoadingAnimation() {
+        document.querySelector(".loading-message").classList.add("active");
+    }
+
+    function hideLoadingAnimation() {
+        document.querySelector(".loading-message").classList.remove("active");
+    }
+
     function loadEditor() {
         let renameUrl = 'save.php?action=rename';
         let deleteUrl = 'save.php?action=delete';

@@ -2,7 +2,14 @@
 
     document.addEventListener("alpine:init", () => {
 
-        Alpine.data('componentDialog', () => ({
+        /**
+         * Initialise data-members
+         *
+         * @param defaultConfig {object} the default configuration to assign when it's a new component
+         * @param beforeSetConfig {function(x)} a mapping function that is called before setting config
+         * @param beforeGetConfig {function(x)} a mapping function that is called before returning
+         */
+        Alpine.data('componentDialog', ({defaultConfig, beforeSetConfig, beforeGetConfig} = {}) => ({
 
             /**
              * the model for the component.
@@ -21,16 +28,11 @@
              */
             beforeGetConfig: (x) => x,
 
-            /**
-             * Initialise data-members
-             *
-             * @param defaultConfig {object} the default configuration to assign when it's a new component
-             * @param beforeSetConfig {function(x)} a mapping function that is called before setting config
-             * @param beforeGetConfig {function(x)} a mapping function that is called before returning
-             */
-            init({defaultConfig, beforeSetConfig, beforeGetConfig} = {}) {
-                console.log("[component-dialog] initialising the component dialog");
-                this.config = defaultConfig ?? {};
+            init() {
+                console.log("[component-dialog] initialising the component dialog", arguments);
+                this.config = {...this.config, ...(defaultConfig ?? {})};
+
+                console.log("Starting with: ", JSON.parse(JSON.stringify(this.config)));
 
                 if (beforeGetConfig) {
                     this.beforeGetConfig = beforeGetConfig;
