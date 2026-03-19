@@ -1,5 +1,7 @@
 (function() {
 
+    const debug = false;
+
     /**
      * Create a dialog button
      * @param buttonKey the name of the component
@@ -34,8 +36,8 @@
 
     function getSectionConfigModalHtml() {
         return /*html*/`
-            <div class="modal fade flatly-bs" id="${MODAL_ID}" tabindex="-1" role="dialog" aria-labelledby="${MODAL_ID}Label" aria-hidden="true">
-              <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+            <div class="modal fade" id="${MODAL_ID}" tabindex="-1" role="dialog" aria-labelledby="${MODAL_ID}Label" aria-hidden="true">
+              <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document" style="height: auto">
                 <div class="modal-content">
                   <div class="modal-header">
                     <h5 class="modal-title fw-normal" id="${MODAL_ID}Label">Component Configuration</h5>
@@ -165,7 +167,6 @@
         // wrap event handler in promise so that we can await it nicely.
         btn.addEventListener("click", async () => {
             const dialogCfg = await openSectionConfigModal(data, "Component Configuration", componentInfo);
-            console.log("Done waiting.");
             onSuccess(dialogCfg);
         });
 
@@ -182,7 +183,7 @@
             const response = await fetch(dialogUrl)
             const data = await response.json();
             if (data.success && data.html) {
-                console.log("[SectionConfigButtonInput] Successfully retrieved dialog content");
+                debug && console.log("[SectionConfigButtonInput] Successfully retrieved dialog content");
                 return data;
             }
             else {
@@ -244,38 +245,48 @@
      * @param newConfig {*} the new configuration to use for rendering.
      */
     async function renderSectionWithConfig(sectionEl, themeId, group, component, newConfig) {
-        const parsedModel = await parseCurrentModel(sectionEl);
+        showLoadingAnimation();
 
-        // URL to request the new section from
-        const sectionUrl = `/sections/${themeId}/${group}/${component}/render`
+        try {
 
-        const sectionHtmlResponse = await fetch(sectionUrl, {
-            method: 'post',
-            headers: {
-                'content-type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: parsedModel,
-                config: newConfig
-            })
-        });
+            const parsedModel = await parseCurrentModel(sectionEl);
 
-        const sectionHtml = await sectionHtmlResponse.text();
-        console.log("Retrieved HTML: ", sectionHtml);
+            // URL to request the new section from
+            const sectionUrl = `/sections/${themeId}/${group}/${component}/render`
 
-        // place section HTML inside a temporary div, so we can retrieve the section's inner HTML
-        const tmpDiv = document.createElement('div');
-        tmpDiv.innerHTML = sectionHtml;
-        const innerElement = tmpDiv.firstElementChild;
+            const sectionHtmlResponse = await fetch(sectionUrl, {
+                method: 'post',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: parsedModel,
+                    config: newConfig
+                })
+            });
 
-        // copy across attributes from section
-        for (const attr of innerElement.attributes) {
-            if (!attr.name.startsWith('@')) {
-                sectionEl.setAttribute(attr.name, attr.value);
+            const sectionHtml = await sectionHtmlResponse.text();
+            debug && console.log("Retrieved HTML: ", sectionHtml);
+
+            // place section HTML inside a temporary div, so we can retrieve the section's inner HTML
+            const tmpDiv = document.createElement('div');
+            tmpDiv.innerHTML = sectionHtml;
+            const innerElement = tmpDiv.firstElementChild;
+
+            // copy across attributes from section
+            for (const attr of innerElement.attributes) {
+                if (!attr.name.startsWith('@')) {
+                    sectionEl.setAttribute(attr.name, attr.value);
+                }
             }
-        }
 
-        sectionEl.innerHTML = innerElement.innerHTML;
+            // copy across new inner html.
+            sectionEl.innerHTML = innerElement.innerHTML;
+
+        }
+        finally {
+            hideLoadingAnimation();
+        }
     }
 
 
@@ -331,7 +342,7 @@
             }
 
             const dialogUrl = createDialogDetailsUrl(themeId, group, component);
-            console.log("[SectionConfigButtonInput] Requesting dialog:", dialogUrl);
+            debug && console.log("[SectionConfigButtonInput] Requesting dialog:", dialogUrl);
 
             const componentInfo = {
                 group,
@@ -350,7 +361,6 @@
 
                 // assign to modal button.
                 assignEventHandlerToButton(btn, dialogData, componentInfo, function(newConfig) {
-                    console.log("Received new configuration: ", newConfig);
 
                     renderSectionWithConfig(element, themeId, group, component, newConfig || {})
                         .catch(
@@ -365,7 +375,7 @@
         },
 
         setValue: function(value) {
-            console.log("[SectionConfigButtonInput] Set value: ", value);
+            debug && console.log("[SectionConfigButtonInput] Set value: ", value);
         },
     };
 

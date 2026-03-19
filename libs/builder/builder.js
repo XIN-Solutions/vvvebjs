@@ -1218,7 +1218,6 @@ Vvveb.Builder = {
 				
 				highlightBox.style.display = "none"; 
 				
-
 				window.FrameWindow.addEventListener("beforeunload", function(event) {
 					if (Vvveb.Undo.undoIndex >= 0) {
 						let dialogText = "You have unsaved changes";
