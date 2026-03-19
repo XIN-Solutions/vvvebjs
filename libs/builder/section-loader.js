@@ -72,6 +72,10 @@
 
             section.outerHTML = newContent.outerHTML || html;
             log("Section rendered successfully:", section.id);
+
+            // make sure we update the sections list.
+            Vvveb.SectionList.loadSections();
+            Vvveb.Builder.selectNode(false);
         }
         catch (err) {
             console.error("[section-bootstrap] Failed to render section:", err);

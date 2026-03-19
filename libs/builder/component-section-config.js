@@ -74,7 +74,6 @@
                 e.preventDefault();
                 const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
                 modal.hide();
-                displayToast("bg-success", "Updated", "Component configuration updated.");
             });
         }
     }

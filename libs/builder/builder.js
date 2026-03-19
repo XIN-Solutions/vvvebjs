@@ -3713,7 +3713,9 @@ Vvveb.SectionList = {
 									target: node,
 									oldParent: node.parentNode,
 									oldNextSibling: node.nextSibling};
-												
+
+				Vvveb.Builder.selectNode(node);
+
 			}
 
 			selected = null;
