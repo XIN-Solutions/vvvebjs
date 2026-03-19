@@ -119,7 +119,7 @@
             // add new update click handler
             updateButtonEl.addEventListener("click", updateButtonCallback);
 
-            // wait for dom to settle and initialise configuration
+            // wait for dom to settle and initialize configuration
             setTimeout(async () => {
                 const formEl = bodyEl.querySelector('form');
 
@@ -132,19 +132,12 @@
                         },
                     };
 
-                    /*
-                      next:
-
-                        ////// -----------------------------
-
-                        3. store configuration onto section
-                        4. rerender section html with new config
-                     */
-
                     // load configuration and provide configuration resolver promise to alpine component
+                    // this will invoke @set on the alpine component on the form element.
                     formEl.dispatchEvent(new CustomEvent("set", formConfig));
                 });
 
+                // now we wait for someone to resolve the `configResolver` promise from within the dialog
                 const outgoingDialogConfig = await resolverPromise;
                 resolve(outgoingDialogConfig);
             }, 0);
@@ -154,22 +147,28 @@
     }
 
     /**
-     * Assign the event handler
+     * Assign the event handler and return a promise that resolves when the configuration dialog has successfully been
+     * edited with new configurations.
+     *
      * @param btn {Element} the button to be added to
      * @param data {object}
      * @param data.html {string}
      * @param data.success {boolean}
      * @param componentInfo {{ group: string, component: string, config: object }}
+     * @param onSuccess {function(object)} called when the dialog has been successfully closed.
      */
-    function assignEventHandlerToButton(btn, data, componentInfo) {
+    function assignEventHandlerToButton(btn, data, componentInfo, onSuccess) {
         btn.disabled = false;
 
         ensureSectionConfigModalInDom();
 
+        // wrap event handler in promise so that we can await it nicely.
         btn.addEventListener("click", async () => {
             const dialogCfg = await openSectionConfigModal(data, "Component Configuration", componentInfo);
-            console.log("Output: ", dialogCfg);
+            console.log("Done waiting.");
+            onSuccess(dialogCfg);
         });
+
     }
 
     /**
@@ -197,6 +196,92 @@
         }
     }
 
+    /**
+     * Attempt to safely parse the JSON
+     * @param jsonStr {string} the json string to parse
+     * @param defaultValue {*} the value that will be returned if something goes wrong.
+     * @returns {*} the parsed value, or defaultValue if something wentw rong.
+     */
+    function safeJsonParse(jsonStr, defaultValue = undefined) {
+        try {
+            return JSON.parse(jsonStr);
+        }
+        catch (err) {
+            console.log("[component-section-config] couldn't parse the json, returning default value. Caused by:", err.message);
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Call into /sections/parse-model to parse the section we're modifying and extract
+     * the current model from it based on the currently annotated HTML.
+     *
+     * @param section {Element} the section element to parse
+     * @returns {Promise<any>} the model
+     */
+    async function parseCurrentModel(section) {
+        // parse the current section
+        const parsedModelResponse = await fetch("/sections/parse-model", {
+            method: "post",
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({html: section.outerHTML})
+        });
+
+        const parsedModel = await parsedModelResponse.json();
+        return parsedModel?.section?.model;
+    }
+
+    /**
+     * Render a section by first parsing the model captured by the current HTML, then calling the render endpoint with
+     * that model and the `newConfig` values as its values.
+     *
+     * @param sectionEl {Element} the HTML element to analyse and replace
+     * @param themeId {string} the theme identifier to render the section with.
+     * @param group {string} the component group for this element
+     * @param component {string} the component name for this element
+     * @param newConfig {*} the new configuration to use for rendering.
+     */
+    async function renderSectionWithConfig(sectionEl, themeId, group, component, newConfig) {
+        const parsedModel = await parseCurrentModel(sectionEl);
+
+        // URL to request the new section from
+        const sectionUrl = `/sections/${themeId}/${group}/${component}/render`
+
+        const sectionHtmlResponse = await fetch(sectionUrl, {
+            method: 'post',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: parsedModel,
+                config: newConfig
+            })
+        });
+
+        const sectionHtml = await sectionHtmlResponse.text();
+        console.log("Retrieved HTML: ", sectionHtml);
+
+        // place section HTML inside a temporary div, so we can retrieve the section's inner HTML
+        const tmpDiv = document.createElement('div');
+        tmpDiv.innerHTML = sectionHtml;
+        const innerElement = tmpDiv.firstElementChild;
+
+        // copy across attributes from section
+        for (const attr of innerElement.attributes) {
+            if (!attr.name.startsWith('@')) {
+                sectionEl.setAttribute(attr.name, attr.value);
+            }
+        }
+
+        sectionEl.innerHTML = innerElement.innerHTML;
+    }
+
+
+    /**
+     * Configuration definition of section configuration button
+     */
     let SectionConfigButtonInput = {
 
         /**
@@ -216,6 +301,7 @@
             // extract relevant information from context.
             const themeId = typeof meta !== "undefined" && meta?.theme?.id ? meta.theme.id : null;
             const componentAttr = element?.getAttribute?.("data-section-component");
+            const componentConfig = safeJsonParse(element?.getAttribute?.("data-section-config"), {});
             const isBodyChild = element?.parentElement === element?.ownerDocument?.body;
 
             if (!themeId || !componentAttr || !isBodyChild) {
@@ -247,33 +333,33 @@
             const dialogUrl = createDialogDetailsUrl(themeId, group, component);
             console.log("[SectionConfigButtonInput] Requesting dialog:", dialogUrl);
 
+            const componentInfo = {
+                group,
+                component,
+                config: componentConfig
+            };
+
             // go get the dialog
-            fetchDialogContent(dialogUrl)
-                .then((dialogData) => {
+            fetchDialogContent(dialogUrl).then((dialogData) => {
 
-                    // nothing retrieved? exit.
-                    if (!dialogData) {
-                        console.log("Didn't get any dialog data for this component.");
-                        return;
-                    }
+                // nothing retrieved? exit.
+                if (!dialogData) {
+                    console.log("Didn't get any dialog data for this component.");
+                    return;
+                }
 
-                    // TODO: get the component info
-                    const componentInfo = {
-                        group,
-                        component,
-                        config: {
-                            "badgeType": "danger",
-                            "imagePosition": "right",
-                            "displayMode": "detailed",
-                            "enableAnimation": true,
-                            "featureTitle": "Lorem ipsum dolor sit amet. 1",
-                            "featureDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ullamcorper, dui vitae ullamcorper rutrum. 2"
-                        }
-                    };
+                // assign to modal button.
+                assignEventHandlerToButton(btn, dialogData, componentInfo, function(newConfig) {
+                    console.log("Received new configuration: ", newConfig);
 
-                    // assign to modal button.
-                    assignEventHandlerToButton(btn, dialogData, componentInfo);
+                    renderSectionWithConfig(element, themeId, group, component, newConfig || {})
+                        .catch(
+                            (err) => console.error("Couldn't re-render section after configuration change", element, newConfig, err)
+                        )
+                    ;
                 });
+
+            });
 
             return container;
         },
