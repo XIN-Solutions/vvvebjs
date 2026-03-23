@@ -58,7 +58,8 @@
             log("Fetch response status:", response.status);
 
             if (!response.ok) {
-                throw new Error("Failed to render section: " + response.status);
+                const errorMessage = await response.text();
+                throw new Error("Failed to render section: " + errorMessage);
             }
 
             const html = await response.text();
