@@ -282,6 +282,10 @@
             // copy across new inner html.
             sectionEl.innerHTML = innerElement.innerHTML;
 
+            // hide the highlighted box.
+            hideHighlightBox();
+            Vvveb.Builder.selectNode(sectionEl);
+            Vvveb.Builder.reloadComponent();
         }
         finally {
             hideLoadingAnimation();

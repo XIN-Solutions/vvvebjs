@@ -1493,10 +1493,29 @@ Vvveb.Builder = {
 		if (elementType[1] == "BODY") {
 			SelectActions.style.display = "none";
 			AddSectionBtn.style.display = "none";
-		} else {
+		}
+		else {
 			SelectActions.style.display = "";
 			AddSectionBtn.style.display = "";
 		}
+
+		const allowAddNode = node.closest("[allowadd]");
+		if (allowAddNode != null) {
+			const disableValues = ['no', 'false', '0'];
+			const closestValue = allowAddNode.getAttribute("allowadd").toLowerCase();
+			const shouldHide = disableValues.includes(closestValue);
+			AddSectionBtn.style.display = shouldHide ? "none" : '';
+			document.querySelector('[data-add-section-btn]').style.display = shouldHide? "none" : "";
+		}
+
+		const allowDelete = node.closest("[allowdelete]");
+		if (allowDelete != null) {
+			const disableValues = ['no', 'false', '0'];
+			const closestValue = allowDelete.getAttribute("allowdelete").toLowerCase();
+			const shouldHide = disableValues.includes(closestValue);
+			document.querySelector('#delete-btn').style.display = shouldHide? "none" : "";
+		}
+
 
 		let target = node;
 		self.selectedEl = target;
@@ -1542,6 +1561,15 @@ Vvveb.Builder = {
 				// don't want to highlight when we're hovering over the body.
 				if (event.target.tagName === "BODY") {
 					return;
+				}
+
+				// check whether we should show the 'add' button
+				const allowAddNode = event.target.closest("[allowadd]");
+				if (allowAddNode != null) {
+					const disableValues = ['no', 'false', '0'];
+					const closestValue = allowAddNode.getAttribute("allowadd").toLowerCase();
+					const shouldHide = disableValues.includes(closestValue);
+					document.querySelector("#add-section-btn").style.display = shouldHide ? "none" : '';
 				}
 
 				self.highlightEl = target = event.target;
