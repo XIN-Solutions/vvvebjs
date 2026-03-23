@@ -217,7 +217,7 @@
      * the current model from it based on the currently annotated HTML.
      *
      * @param section {Element} the section element to parse
-     * @returns {Promise<any>} the model
+     * @returns {Promise<any|null>} the model
      */
     async function parseCurrentModel(section) {
         // parse the current section
@@ -230,7 +230,10 @@
         });
 
         const parsedModel = await parsedModelResponse.json();
-        return parsedModel?.section?.model;
+        if (parsedModel?.success) {
+            return parsedModel?.section?.model;
+        }
+        return null;
     }
 
     /**
@@ -249,6 +252,10 @@
         try {
 
             const parsedModel = await parseCurrentModel(sectionEl);
+            if (parsedModel == null) {
+                alert("Could not parse the model for this section. Stopping to prevent data loss.");
+                return;
+            }
 
             // URL to request the new section from
             const sectionUrl = `/sections/${themeId}/${group}/${component}/render`
