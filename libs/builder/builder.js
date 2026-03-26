@@ -1464,9 +1464,22 @@ Vvveb.Builder = {
 	destroyEditor: function() {
 		const selectBox = document.getElementById("select-box");
 		const selectActions = document.getElementById("select-actions");
+		const textEl = this.texteditEl;
+		const boxUpdater = this._textEditSelectBoxHandler;
 
-		Vvveb.WysiwygEditor.destroy(this.texteditEl);
-		
+		if (textEl && boxUpdater) {
+			textEl.removeEventListener("blur", boxUpdater);
+			textEl.removeEventListener("keyup", boxUpdater);
+			textEl.removeEventListener("paste", boxUpdater);
+			textEl.removeEventListener("input", boxUpdater);
+			textEl.removeEventListener("compositionend", boxUpdater);
+		}
+		this._textEditSelectBoxHandler = null;
+
+		if (textEl) {
+			Vvveb.WysiwygEditor.destroy(textEl);
+		}
+
 		this.selectPadding = 0;
 		selectBox.classList.remove("text-edit");
 		selectActions.style.display = "";
@@ -1845,35 +1858,43 @@ Vvveb.Builder = {
 
 				Vvveb.WysiwygEditor.edit(self.texteditEl);
 
-				_updateSelectBox = function(event) {
+				const updateTextEditSelectBox = function() {
 					if (!self.texteditEl) {
 						return;
 					}
 
-					if (Vvveb.WysiwygEditor.isActive) {
-						// console.log("Wysiwyg editor is active, skipping _updateSelectBox");
-						return;
+					const el = self.texteditEl;
+					const pos = offset(el);
+					const SelectBox = document.getElementById("select-box");
+
+					let topPx = pos.top - (self.frameDoc.scrollTop ?? 0) - self.selectPadding;
+					let heightPx = (el.offsetHeight ?? el.clientHeight) + self.selectPadding * 2;
+
+					const textEditing = SelectBox.classList.contains("text-edit");
+					if (textEditing && topPx < 40) {
+						heightPx += topPx - 40;
+						topPx = 40;
+					}
+					else if (topPx < 0) {
+						heightPx += topPx;
+						topPx = 0;
 					}
 
-					let pos = offset(self.selectedEl);
-
-					let SelectBox = document.getElementById("select-box");
-					const isTextEdit = (SelectBox.classList.contains("text-edit"));
-
-					SelectBox.style.top  = (pos.top - (self.frameDoc.scrollTop ?? 0)  - self.selectPadding) + "px";
+					SelectBox.style.top = topPx + "px";
 					SelectBox.style.left = (pos.left - (self.frameDoc.scrollLeft ?? 0) - self.selectPadding) + "px";
-					SelectBox.style.width = (self.texteditEl.offsetWidth + (self.selectPadding * 2)) + "px";
-					SelectBox.style.height = (self.texteditEl.offsetHeight + (self.selectPadding * 2)) + "px";
+					SelectBox.style.width = ((el.offsetWidth ?? el.clientWidth) + self.selectPadding * 2) + "px";
+					SelectBox.style.height = heightPx + "px";
 					SelectBox.style.display = "block";
-
 				};
 
-				//update select box when the text size is changed
-				self.texteditEl.addEventListener("blur", _updateSelectBox);
-				self.texteditEl.addEventListener("keyup", _updateSelectBox);
-				self.texteditEl.addEventListener("paste", _updateSelectBox);
-				self.texteditEl.addEventListener("input", _updateSelectBox);
-				_updateSelectBox();
+				self._textEditSelectBoxHandler = updateTextEditSelectBox;
+
+				self.texteditEl.addEventListener("blur", updateTextEditSelectBox);
+				self.texteditEl.addEventListener("keyup", updateTextEditSelectBox);
+				self.texteditEl.addEventListener("paste", updateTextEditSelectBox);
+				self.texteditEl.addEventListener("input", updateTextEditSelectBox);
+				self.texteditEl.addEventListener("compositionend", updateTextEditSelectBox);
+				updateTextEditSelectBox();
 
 				document.getElementById("select-box").classList.add("text-edit")
 				document.getElementById("select-actions").style.display = "none";
