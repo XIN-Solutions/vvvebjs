@@ -3668,16 +3668,57 @@ Vvveb.SectionList = {
 		let sections = [];
 		let sectionList = 
 			window.FrameDocument.body.querySelectorAll(':scope > section, :scope > header, :scope > footer, :scope > main, :scope > nav');
+
+		function toTitleCase(input) {
+			return String(input || "")
+				.replace(/[_-]+/g, " ")
+				.replace(/\s+/g, " ")
+				.trim()
+				.replace(/\b\w/g, (c) => c.toUpperCase());
+		}
+
+		const sectionTypeToGroupLabel = (() => {
+			const lookup = {};
+			const groups = Vvveb.SectionsGroup || {};
+
+			for (const groupLabel in groups) {
+				const items = groups[groupLabel] || [];
+				for (let i = 0; i < items.length; i++) {
+					const key = items[i];
+					if (!lookup[key]) {
+						lookup[key] = groupLabel;
+					}
+				}
+			}
+
+			return lookup;
+		})();
 		
 		sectionList.forEach(function (node, i) {
+			const componentAttr = node.getAttribute("data-section-component") || "";
+			const parts = componentAttr.split("/");
+			const sectionGroup = parts[0];
+			const sectionComponent = parts[1];
+			const sectionTypeKey = sectionGroup && sectionComponent ? (sectionGroup + "/" + sectionComponent) : "";
+			const sectionDef = sectionTypeKey ? Vvveb.Sections.get(sectionTypeKey) : null;
+
 			let id = node.id ? node.id : (node.title ? node.title : node.className);
 			if (!id) {
 				id = 'section-' +  Math.floor(Math.random() * 10000);
 			}
+
+			let displayName = id.replace(/[^\w+]+/g,' ');
+			let displayType = node.tagName.toLowerCase();
+
+			if (sectionGroup && sectionComponent) {
+				displayName = sectionDef?.name || toTitleCase(sectionComponent);
+				displayType = sectionTypeToGroupLabel[sectionTypeKey] || toTitleCase(sectionGroup);
+			}
+
 			let section = {
-				name: id.replace(/[^\w+]+/g,' '),
+				name: displayName,
 				id: node.id,
-				type: node.tagName.toLowerCase(),
+				type: displayType,
 				node: node
 			};
 			if (!isEditableElement(node)) {
