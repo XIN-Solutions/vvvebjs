@@ -45,7 +45,13 @@
             log("Couldn't initialise model: ", ex);
         }
 
-        const url = "/sections/" + encodeURIComponent(THEME_ID) + "/" + encodeURIComponent(group) + "/" + encodeURIComponent(component) + "/render";
+        // URL to request the new section from
+        let params;
+        if (meta?.page?.pageId) {
+            params = '?pageId=' + meta.page.pageId;
+        }
+
+        const url = "/sections/" + encodeURIComponent(THEME_ID) + "/" + encodeURIComponent(group) + "/" + encodeURIComponent(component) + "/render" + params;
 
         log("Fetching section from URL:", url);
 
