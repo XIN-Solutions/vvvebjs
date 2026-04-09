@@ -29,10 +29,8 @@
             beforeGetConfig: (x) => x,
 
             init() {
-                console.log("[component-dialog] initialising the component dialog", arguments);
+                console.log("[component-dialog] initialising the component dialog");
                 this.config = {...this.config, ...(defaultConfig ?? {})};
-
-                console.log("Starting with: ", JSON.parse(JSON.stringify(this.config)));
 
                 if (beforeGetConfig) {
                     this.beforeGetConfig = beforeGetConfig;
