@@ -186,7 +186,7 @@
                 return data;
             }
             else {
-                console.log("[SectionConfigButtonInput] Couldn't retrieve dialog content:", data);
+                debug && console.log("[SectionConfigButtonInput] Couldn't retrieve dialog content:", data);
                 return null;
             }
         }
@@ -258,7 +258,12 @@
             }
 
             // URL to request the new section from
-            const sectionUrl = `/sections/${themeId}/${group}/${component}/render`
+            let params;
+            if (meta?.page?.pageId) {
+                params = '?pageId=' + meta.page.pageId;
+            }
+
+            const sectionUrl = `/sections/${themeId}/${group}/${component}/render` + (params ?? '');
 
             const sectionHtmlResponse = await fetch(sectionUrl, {
                 method: 'post',
@@ -313,7 +318,7 @@
          * @returns {HTMLDivElement}
          */
         init: function(data, element) {
-            console.log("[SectionConfigButtonInput] Initialising section button: ", data, 'el', element);
+            debug && console.log("[SectionConfigButtonInput] Initialising section button: ", data, 'el', element);
 
             const container = document.createElement("div");
             const btn = createDialogButton(data.key);
@@ -326,7 +331,7 @@
             const isBodyChild = element?.parentElement === element?.ownerDocument?.body;
 
             if (!themeId || !componentAttr || !isBodyChild) {
-                console.log("[SectionConfigButtonInput] Early return - validation failed:", {
+                debug && console.log("[SectionConfigButtonInput] Early return - validation failed:", {
                     themeId: themeId,
                     componentAttr: componentAttr,
                     isBodyChild: isBodyChild
@@ -342,7 +347,7 @@
 
             // validate they are correct.
             if (!group || !component) {
-                console.log("[SectionConfigButtonInput] Invalid component format - missing group or component:", {
+                debug && console.log("[SectionConfigButtonInput] Invalid component format - missing group or component:", {
                     componentAttr: componentAttr,
                     group: group,
                     component: component
