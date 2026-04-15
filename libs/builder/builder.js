@@ -2396,12 +2396,6 @@ Vvveb.Builder = {
 		let doc = window.FrameDocument;
 		const htmlSlots = {};
 
-		// clear out all dynamic data.
-		doc.querySelectorAll('[data-widget]').forEach(element => {
-			element._innerHTML = element.innerHTML;
-			element.innerHTML = '';
-		});
-
 		const bodyContentsList = [];
 
 		// add an element to the contents list for each not locked item directly under the body tag
@@ -2418,11 +2412,6 @@ Vvveb.Builder = {
 
 		const customStyleEl = doc.querySelector("#vvvebjs-styles");
 		htmlSlots['customStyles'] = customStyleEl?.innerHTML ?? "";
-
-		// reload widgets
-		doc.querySelectorAll('[data-widget]').forEach(element => {
-			element.innerHTML = element._innerHTML;
-		});
 
 		return htmlSlots;
 	},
