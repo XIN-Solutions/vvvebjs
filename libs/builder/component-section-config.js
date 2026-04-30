@@ -249,6 +249,8 @@
     async function renderSectionWithConfig(sectionEl, themeId, group, component, newConfig) {
         showLoadingAnimation();
 
+        const ownerDoc = sectionEl.ownerDocument;
+
         try {
 
             const parsedModel = await parseCurrentModel(sectionEl);
@@ -293,6 +295,14 @@
 
             // copy across new inner html.
             sectionEl.innerHTML = innerElement.innerHTML;
+
+            // notify the body that a section was updated. There may be additional JavaScript
+            // behaviours that need to execute (for example: a gallery requiring initialisation)
+            ownerDoc.dispatchEvent(new CustomEvent("onSectionChange", {
+                added: false,
+                modified: true,
+                section
+            }));
 
             // hide the highlighted box.
             hideHighlightBox();

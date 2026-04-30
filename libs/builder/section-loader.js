@@ -74,11 +74,22 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
             const newContent = doc.body.firstChild || doc.body;
+            const ownerDoc = section.ownerDocument;
 
             newContent.setAttribute("data-section-initialized", true);
 
             section.outerHTML = newContent.outerHTML || html;
             log("Section rendered successfully:", section.id);
+
+            // notify the body that a section was initialised. There may be additional javascript
+            // behaviours that need to execute (for example: a gallery requiring initialisation)
+            ownerDoc.dispatchEvent(new CustomEvent("onSectionChange", {
+                detail: {
+                    added: true,
+                    modified: false,
+                    section
+                }
+            }));
 
             // make sure we update the sections list.
             Vvveb.SectionList.loadSections();
