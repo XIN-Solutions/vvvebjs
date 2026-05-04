@@ -81,6 +81,8 @@
             section.outerHTML = newContent.outerHTML || html;
             log("Section rendered successfully:", section.id);
 
+            preventClickListeners(section);
+
             // notify the body that a section was initialised. There may be additional javascript
             // behaviours that need to execute (for example: a gallery requiring initialisation)
             ownerDoc.dispatchEvent(new CustomEvent("onSectionChange", {
@@ -116,6 +118,17 @@
         }, 100);
     }
 
+    /**
+     * Add some behaviour to all links to make sure not to activate when clicked.
+     */
+    function preventClickListeners(element) {
+        for (const linkEl of element.querySelectorAll("[href]")) {
+            linkEl.addEventListener("click", (evt) => evt.preventDefault());
+            linkEl.addEventListener("dblclick", (evt) => evt.preventDefault());
+        }
+
+    }
+
     if (typeof Vvveb !== "undefined" && Vvveb.Builder) {
 
         const sleep = (ms) => new Promise((resolve, reject) => {
@@ -131,6 +144,8 @@
             log("Iframe already available, setting up observer immediately");
             setupSectionObserver(Vvveb.Builder.frameDoc);
         }
+
+        preventClickListeners(Vvveb.Builder.frameDoc.body);
     }
 
 })().catch(err => console.error(err));
