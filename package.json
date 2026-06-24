@@ -31,9 +31,12 @@
     "theme_proxy": "node proxy.js",
     "remote_theme_proxy": "node proxy.js",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "vendor:easymde": "mkdir -p libs/easymde libs/font-awesome/css libs/font-awesome/webfonts && cp node_modules/easymde/dist/easymde.min.js node_modules/easymde/dist/easymde.min.css libs/easymde/ && cp node_modules/@fortawesome/fontawesome-free/css/all.min.css libs/font-awesome/css/ && cp node_modules/@fortawesome/fontawesome-free/webfonts/* libs/font-awesome/webfonts/",
     "build": "TAG=$(date +%Y%m%d_%H%M) && docker build -f Dockerfile -t dr.xinsolutions.co.nz/exoh/exoh-editor:$TAG -t dr.xinsolutions.co.nz/exoh/exoh-editor:latest . && echo \"Built dr.xinsolutions.co.nz/exoh/exoh-editor:$TAG\""
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^7.2.0",
+    "easymde": "^2.21.0",
     "gulp": "^4.0.2",
     "gulp-file-include": "^2.3.0",
     "gulp-format-html": "^1.2.5",
