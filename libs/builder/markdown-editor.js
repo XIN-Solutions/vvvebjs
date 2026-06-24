@@ -69,11 +69,7 @@
     }
 
     function getEditorMaxHeight(bodyEl) {
-        if (!bodyEl) {
-            return "300px";
-        }
-        const maxPx = Math.max(300, bodyEl.clientHeight - 100);
-        return maxPx + "px";
+        return "300px";
     }
 
     function applyEditorMaxHeight(editor, bodyEl) {
@@ -107,15 +103,13 @@
             return;
         }
 
-        const bodyEl = textarea.closest(".section-config-modal-body");
-        const maxHeight = getEditorMaxHeight(bodyEl);
-
         const editor = new EasyMDE({
             element: textarea,
             autoDownloadFontAwesome: false,
             forceSync: true,
             autoRefresh: { delay: 300 },
-            maxHeight: maxHeight,
+            minHeight: "300px",
+            maxHeight: "300px",
             spellChecker: false,
             initialValue: textarea.value,
         });
