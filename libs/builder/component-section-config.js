@@ -314,6 +314,83 @@
         }
     }
 
+    /**
+     * Resolve section configuration context from a section element.
+     *
+     * @param sectionEl {Element} the section element
+     * @returns {{ themeId: string, group: string, component: string, componentConfig: object, dialogUrl: string, componentInfo: { group: string, component: string, config: object } }|null}
+     */
+    function resolveSectionConfigContext(sectionEl) {
+        const themeId = typeof meta !== "undefined" && meta?.theme?.id ? meta.theme.id : null;
+        const componentAttr = sectionEl?.getAttribute?.("data-section-component");
+        const componentConfig = safeJsonParse(sectionEl?.getAttribute?.("data-section-config"), {});
+        const isBodyChild = sectionEl?.parentElement === sectionEl?.ownerDocument?.body;
+
+        if (!themeId || !componentAttr || !isBodyChild) {
+            return null;
+        }
+
+        const parts = componentAttr.split("/");
+        const group = parts[0];
+        const component = parts[1];
+
+        if (!group || !component) {
+            return null;
+        }
+
+        const dialogUrl = createDialogDetailsUrl(themeId, group, component);
+
+        return {
+            themeId,
+            group,
+            component,
+            componentConfig,
+            dialogUrl,
+            componentInfo: {
+                group,
+                component,
+                config: componentConfig
+            }
+        };
+    }
+
+    /**
+     * Fetch dialog content, open the configuration modal, and re-render the section on Update.
+     *
+     * @param sectionEl {Element} the section element
+     * @param prefetchedDialogData {object|undefined} optional pre-fetched dialog response
+     * @returns {Promise<boolean>} true when the dialog was opened and updated
+     */
+    async function tryOpenSectionConfigDialog(sectionEl, prefetchedDialogData) {
+        const context = resolveSectionConfigContext(sectionEl);
+        if (!context) {
+            return false;
+        }
+
+        const dialogData = prefetchedDialogData ?? await fetchDialogContent(context.dialogUrl);
+        if (!dialogData) {
+            return false;
+        }
+
+        const newConfig = await openSectionConfigModal(
+            dialogData,
+            "Component Configuration",
+            context.componentInfo
+        );
+
+        await renderSectionWithConfig(
+            sectionEl,
+            context.themeId,
+            context.group,
+            context.component,
+            newConfig || {}
+        ).catch(
+            (err) => console.error("Couldn't re-render section after configuration change", sectionEl, newConfig, err)
+        );
+
+        return true;
+    }
+
 
     /**
      * Configuration definition of section configuration button
@@ -334,64 +411,30 @@
             const btn = createDialogButton(data.key);
             container.appendChild(btn);
 
-            // extract relevant information from context.
-            const themeId = typeof meta !== "undefined" && meta?.theme?.id ? meta.theme.id : null;
-            const componentAttr = element?.getAttribute?.("data-section-component");
-            const componentConfig = safeJsonParse(element?.getAttribute?.("data-section-config"), {});
-            const isBodyChild = element?.parentElement === element?.ownerDocument?.body;
-
-            if (!themeId || !componentAttr || !isBodyChild) {
+            const context = resolveSectionConfigContext(element);
+            if (!context) {
                 debug && console.log("[SectionConfigButtonInput] Early return - validation failed:", {
-                    themeId: themeId,
-                    componentAttr: componentAttr,
-                    isBodyChild: isBodyChild
+                    themeId: typeof meta !== "undefined" && meta?.theme?.id ? meta.theme.id : null,
+                    componentAttr: element?.getAttribute?.("data-section-component"),
+                    isBodyChild: element?.parentElement === element?.ownerDocument?.body
                 });
 
                 return container;
             }
 
-            // extract component name information from component attribute.
-            const parts = componentAttr.split("/");
-            const group = parts[0];
-            const component = parts[1];
+            debug && console.log("[SectionConfigButtonInput] Requesting dialog:", context.dialogUrl);
 
-            // validate they are correct.
-            if (!group || !component) {
-                debug && console.log("[SectionConfigButtonInput] Invalid component format - missing group or component:", {
-                    componentAttr: componentAttr,
-                    group: group,
-                    component: component
-                });
-
-                return container;
-            }
-
-            const dialogUrl = createDialogDetailsUrl(themeId, group, component);
-            debug && console.log("[SectionConfigButtonInput] Requesting dialog:", dialogUrl);
-
-            const componentInfo = {
-                group,
-                component,
-                config: componentConfig
-            };
-
-            // go get the dialog
-            fetchDialogContent(dialogUrl).then((dialogData) => {
-
-                // nothing retrieved? exit.
+            fetchDialogContent(context.dialogUrl).then((dialogData) => {
                 if (!dialogData) {
                     console.log("Didn't get any dialog data for this component.");
                     return;
                 }
 
-                // assign to modal button.
-                assignEventHandlerToButton(btn, dialogData, componentInfo, function(newConfig) {
+                btn.disabled = false;
+                ensureSectionConfigModalInDom();
 
-                    renderSectionWithConfig(element, themeId, group, component, newConfig || {})
-                        .catch(
-                            (err) => console.error("Couldn't re-render section after configuration change", element, newConfig, err)
-                        )
-                    ;
+                btn.addEventListener("click", () => {
+                    tryOpenSectionConfigDialog(element, dialogData);
                 });
 
             });
@@ -424,5 +467,9 @@
 
     Vvveb.Components.add("elements/section-config", SectionConfigComponent);
     // Vvveb.Components.extend("_base", "_base", SectionConfigComponent);
+
+    Vvveb.SectionConfig = Vvveb.SectionConfig || {};
+    Vvveb.SectionConfig.tryOpenSectionConfigDialog = tryOpenSectionConfigDialog;
+    Vvveb.SectionConfig.tryOpen = tryOpenSectionConfigDialog;
 
 })();

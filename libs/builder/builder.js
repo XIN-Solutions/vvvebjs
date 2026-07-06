@@ -41,7 +41,6 @@ const ContentEditableTagsWhitelist = [
 	"tr",
 	"td",
 	"th",
-	"img",
 	"strong",
 	"i",
 	"em",
@@ -117,6 +116,56 @@ function isEditableElement(element) {
 	}
 
 	return false;
+}
+
+function isInlineEditDoubleClickTarget(element) {
+	if (!element || element.tagName === "BODY") {
+		return false;
+	}
+
+	if (element.hasAttribute("data-locked") || element.closest("[data-locked]")) {
+		return false;
+	}
+
+	if (element.hasAttribute("edit")) {
+		return true;
+	}
+
+	const tagName = element.tagName.toLowerCase();
+	const allowedInDiv = ['i', 'b', 'em', 'strong'];
+	const leafDiv = (
+		tagName === 'div' &&
+		Array.from(element.childNodes).every(
+			node => node.nodeType === Node.TEXT_NODE ||
+					(node.nodeType === Node.ELEMENT_NODE && allowedInDiv.includes(node.tagName.toLowerCase()))
+		)
+	);
+
+	return leafDiv || ContentEditableTagsWhitelist.includes(tagName);
+}
+
+function clearDocumentSelection(doc) {
+	const selection = doc?.getSelection?.();
+	if (selection && selection.rangeCount > 0) {
+		selection.removeAllRanges();
+	}
+}
+
+function resolveSectionConfigDoubleClickTarget(target) {
+	if (isInlineEditDoubleClickTarget(target)) {
+		return null;
+	}
+
+	const sectionEl = target?.closest?.("[data-section-component]");
+	if (!sectionEl || sectionEl.parentElement !== sectionEl.ownerDocument?.body) {
+		return null;
+	}
+
+	if (!Vvveb.SectionConfig?.tryOpenSectionConfigDialog) {
+		return null;
+	}
+
+	return sectionEl;
 }
 
 
@@ -914,7 +963,7 @@ Vvveb.WysiwygEditor = {
         selection.addRange(range);
 
 	},
-	
+
 
 	edit: function(element) {
 		element.setAttribute("contenteditable", true);
@@ -936,7 +985,7 @@ Vvveb.WysiwygEditor = {
 	destroy: function(element) {
 		element.removeAttribute("contenteditable");
 		element.removeAttribute("spellchecker");
-		
+
 		element.removeEventListener("paste", this.pasteHandler);
 
 		document.getElementById("wysiwyg-editor").style.display = "none";
@@ -1018,7 +1067,7 @@ Vvveb.Builder = {
 				//list.append('<li class="header clearfix" data-section="' + group + '"  data-search=""><label class="header" for="' + type + '_comphead_' + group + count + '">' + group + '  <div class="header-arrow"></div>\
 					//				   </label><input class="header_check" type="checkbox" checked="true" id="' + type + '_comphead_' + group + count + '">  <ol></ol></li>');
 
-				
+
 				let componentsSubListWrapper = list.querySelector('li[data-section="' + group + '"]');
 				let componentsSubList = list.querySelector('li[data-section="' + group + '"]  ol');
 				
@@ -1028,12 +1077,12 @@ Vvveb.Builder = {
 				for (i in components) {
 					componentType = components[i];
 					component = Vvveb.Components.get(componentType);
-				
+
 					if (!component) {
 						continue;
 					}
 
-					// if component has availability limitations check that ancestor fits availability. 
+					// if component has availability limitations check that ancestor fits availability.
 					if (component.availableWhen) {
 
 						try {
@@ -1047,7 +1096,7 @@ Vvveb.Builder = {
 									continue;
 								}
 							}
-							
+
 							// selector string, but nothing found in parent, continue.
 							if (typeof component.availableWhen === 'string' && !selectedEl.closest(component.availableWhen)) {
 								continue;
@@ -1072,10 +1121,10 @@ Vvveb.Builder = {
 
 					if (component.image) {
 
-						item.style.backgroundImage = "url(" + Vvveb.imgBaseUrl + component.image + ")"; 			
+						item.style.backgroundImage = "url(" + Vvveb.imgBaseUrl + component.image + ")";
 						item.style.backgroundRepeat = "no-repeat";
 					}
-					
+
 					componentsSubList.append(item);
 					++nInGroup;
 				}
@@ -1217,7 +1266,7 @@ Vvveb.Builder = {
 				let SelectBox = document.getElementById("select-box");
 				
 				highlightBox.style.display = "none"; 
-				
+
 				window.FrameWindow.addEventListener("beforeunload", function(event) {
 					if (Vvveb.Undo.undoIndex >= 0) {
 						let dialogText = "You have unsaved changes";
@@ -1485,7 +1534,7 @@ Vvveb.Builder = {
 		selectActions.style.display = "";
 		this.texteditEl = null;
 	},
-	
+
 	selectNode:  function(node) {
 		let SelectBox = document.getElementById("select-box");
 		
@@ -1666,7 +1715,7 @@ Vvveb.Builder = {
 					SelectBox.style.height = self.selectedEl.offsetHeight + "px";
 					SelectBox.style.display = "block";
 				
-				} 
+				}
 				else if (self.isDragging) {
 					let noChildren = {
 						input: true,
@@ -1750,10 +1799,10 @@ Vvveb.Builder = {
 					`);
 
 					if (height < 50) {
-						document.getElementById("section-actions").classList.add("slim");	 
-					} 
+						document.getElementById("section-actions").classList.add("slim");
+					}
 					else {
-						document.getElementById("section-actions").classList.remove("slim");	
+						document.getElementById("section-actions").classList.remove("slim");
 					}
 
 					let elementType = self._getElementType(event.target);
@@ -1827,11 +1876,35 @@ Vvveb.Builder = {
 		
 		self.frameBody.addEventListener("mouseup", highlightUp);
 
+		self.frameBody.addEventListener("mousedown", function(event) {
+			if (Vvveb.Builder.isPreview || event.detail < 2) {
+				return;
+			}
+
+			if (resolveSectionConfigDoubleClickTarget(event.target)) {
+				event.preventDefault();
+			}
+		});
+
 		let highlightDbClick = function(event) {
 
 			if (Vvveb.Builder.isPreview) {
 				return;
 			}
+
+            const sectionEl = resolveSectionConfigDoubleClickTarget(event.target);
+            if (sectionEl) {
+                event.preventDefault();
+                event.stopPropagation();
+                clearDocumentSelection(sectionEl.ownerDocument);
+                clearDocumentSelection(document);
+                Vvveb.SectionConfig.tryOpenSectionConfigDialog(sectionEl);
+                return;
+            }
+
+            if (!isInlineEditDoubleClickTarget(event.target)) {
+                return;
+            }
 
 			if (!isEditableElement(event.target)) {
 				return;
@@ -1842,11 +1915,11 @@ Vvveb.Builder = {
 			const leafDiv = (
 				tagName === 'div' &&
 				Array.from(event.target.childNodes).every(
-					node => node.nodeType === Node.TEXT_NODE || 
+					node => node.nodeType === Node.TEXT_NODE ||
 							(node.nodeType === Node.ELEMENT_NODE && allowedInDiv.includes(node.tagName.toLowerCase()))
 				)
 			);
-			
+
 			if (!leafDiv && !ContentEditableTagsWhitelist.includes(tagName)) {
 				console.log(`Cannot inline edit ${tagName}`);
 				return;
@@ -2144,11 +2217,11 @@ Vvveb.Builder = {
 		
 		document.querySelectorAll("[data-add-section-btn]").forEach((el) => {
 			el.addEventListener("click", function(event) {
-				
-				addSectionElement = self.highlightEl; 
-				addSectionBox.style.display  = "block"; 
 
-				let pos = offset(addSectionElement);	
+				addSectionElement = self.highlightEl;
+				addSectionBox.style.display  = "block";
+
+				let pos = offset(addSectionElement);
 				let top = ((pos.top + window.FrameWindow.pageYOffset + addSectionElement.clientTop) - self.frameHtml.scrollTop) + addSectionElement.offsetHeight;
 				let left = ((pos.left + window.FrameWindow.pageXOffset + addSectionElement.clientLeft) - self.frameHtml.scrollLeft) + (addSectionElement.offsetWidth / 2) - (addSectionBox.offsetWidth / 2);
 				let outerHeight = window.FrameWindow.innerHeight + self.frameHtml.scrollTop;
@@ -2158,9 +2231,9 @@ Vvveb.Builder = {
 				if (top < 0) top = 0;
 				if ((left + addSectionBox.offsetWidth) > self.frameHtml.offsetWidth) left = self.frameHtml.offsetWidth - addSectionBox.offsetWidth;
 				if (((top + addSectionBox.offsetHeight) + self.frameHtml.scrollTop) > outerHeight) top = top - addSectionBox.offsetHeight;
-				
-				addSectionBox.style.top  = top + "px"; 
-				addSectionBox.style.left  = left + "px"; 
+
+				addSectionBox.style.top  = top + "px";
+				addSectionBox.style.left  = left + "px";
 
 				event.preventDefault();
 				return false;
@@ -2188,8 +2261,8 @@ Vvveb.Builder = {
 
 			// get html, usually string, but if function, pass component instance insertion element for dynamic fun.
 			const html = (
-				(typeof component.html === "function") 
-					? component.html(component, insertEl) 
+				(typeof component.html === "function")
+					? component.html(component, insertEl)
 					: component.html
 			);
 
@@ -2197,7 +2270,7 @@ Vvveb.Builder = {
 
 			if (after) {
 				insertEl.after(node);
-			} 
+			}
 			else {
 				insertEl.append(node);
 			}
@@ -2227,7 +2300,7 @@ Vvveb.Builder = {
 
 				// if an insertion point is set in the component, make sure to always insert after. otherwise rely on the setting from the interface.
 				const shouldInsertAfter = (
-					insertionPoint || 
+					insertionPoint ||
 					(document.querySelector("[name='add-section-insert-mode']:checked").value == "after")
 				);
 
@@ -2584,7 +2657,7 @@ Vvveb.Builder = {
 				data[slotName] = html;
 			}
 
-			// LEGACY -- all slot based now, just causing issues at this point. 
+			// LEGACY -- all slot based now, just causing issues at this point.
 			// data["html"] = this.getHtml();
 		}
 
@@ -3522,7 +3595,7 @@ Vvveb.SectionList = {
 				section.remove();
 				hideHighlightBox();
 				hideSelectBox();
-				
+
 				e.stopPropagation();
 				e.preventDefault();
 			}
@@ -3546,7 +3619,7 @@ Vvveb.SectionList = {
 				img.style.display = "none";
 			}
 		})
-		
+
 		document.querySelector(this.selector).addEventListener("click", ".up-btn", function (e) {
 			let section = e.target.closest(".section-item");
 			let node = section._node;
@@ -3682,7 +3755,7 @@ Vvveb.SectionList = {
 
 			return lookup;
 		})();
-		
+
 		sectionList.forEach(function (node, i) {
 			const componentAttr = node.getAttribute("data-section-component") || "";
 			const parts = componentAttr.split("/");
