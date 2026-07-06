@@ -119,6 +119,56 @@ function isEditableElement(element) {
 	return false;
 }
 
+function isInlineEditDoubleClickTarget(element) {
+	if (!element || element.tagName === "BODY") {
+		return false;
+	}
+
+	if (element.hasAttribute("data-locked") || element.closest("[data-locked]")) {
+		return false;
+	}
+
+	if (element.hasAttribute("edit")) {
+		return true;
+	}
+
+	const tagName = element.tagName.toLowerCase();
+	const allowedInDiv = ['i', 'b', 'em', 'strong'];
+	const leafDiv = (
+		tagName === 'div' &&
+		Array.from(element.childNodes).every(
+			node => node.nodeType === Node.TEXT_NODE ||
+					(node.nodeType === Node.ELEMENT_NODE && allowedInDiv.includes(node.tagName.toLowerCase()))
+		)
+	);
+
+	return leafDiv || ContentEditableTagsWhitelist.includes(tagName);
+}
+
+function clearDocumentSelection(doc) {
+	const selection = doc?.getSelection?.();
+	if (selection && selection.rangeCount > 0) {
+		selection.removeAllRanges();
+	}
+}
+
+function resolveSectionConfigDoubleClickTarget(target) {
+	if (isInlineEditDoubleClickTarget(target)) {
+		return null;
+	}
+
+	const sectionEl = target?.closest?.("[data-section-component]");
+	if (!sectionEl || sectionEl.parentElement !== sectionEl.ownerDocument?.body) {
+		return null;
+	}
+
+	if (!Vvveb.SectionConfig?.tryOpenSectionConfigDialog) {
+		return null;
+	}
+
+	return sectionEl;
+}
+
 
 function buildParams( prefix, obj,  add ) {
 	var name;
@@ -1827,33 +1877,37 @@ Vvveb.Builder = {
 		
 		self.frameBody.addEventListener("mouseup", highlightUp);
 
+		self.frameBody.addEventListener("mousedown", function(event) {
+			if (Vvveb.Builder.isPreview || event.detail < 2) {
+				return;
+			}
+
+			if (resolveSectionConfigDoubleClickTarget(event.target)) {
+				event.preventDefault();
+			}
+		});
+
 		let highlightDbClick = function(event) {
 
 			if (Vvveb.Builder.isPreview) {
 				return;
 			}
 
-			if (!isEditableElement(event.target)) {
-				const sectionEl = event.target.closest("[data-section-component]");
-				if (sectionEl && sectionEl.parentElement === sectionEl.ownerDocument?.body && Vvveb.SectionConfig?.tryOpenSectionConfigDialog) {
-					event.preventDefault();
-					Vvveb.SectionConfig.tryOpenSectionConfigDialog(sectionEl);
-				}
+			const sectionEl = resolveSectionConfigDoubleClickTarget(event.target);
+			if (sectionEl) {
+				event.preventDefault();
+				event.stopPropagation();
+				clearDocumentSelection(sectionEl.ownerDocument);
+				clearDocumentSelection(document);
+				Vvveb.SectionConfig.tryOpenSectionConfigDialog(sectionEl);
 				return;
 			}
 
-			const tagName = event.target.tagName.toLowerCase();
-			const allowedInDiv = ['i', 'b', 'em', 'strong'];
-			const leafDiv = (
-				tagName === 'div' &&
-				Array.from(event.target.childNodes).every(
-					node => node.nodeType === Node.TEXT_NODE || 
-							(node.nodeType === Node.ELEMENT_NODE && allowedInDiv.includes(node.tagName.toLowerCase()))
-				)
-			);
-			
-			if (!leafDiv && !ContentEditableTagsWhitelist.includes(tagName)) {
-				console.log(`Cannot inline edit ${tagName}`);
+			if (!isInlineEditDoubleClickTarget(event.target)) {
+				return;
+			}
+
+			if (!isEditableElement(event.target)) {
 				return;
 			}
 
