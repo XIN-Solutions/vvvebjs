@@ -1834,6 +1834,11 @@ Vvveb.Builder = {
 			}
 
 			if (!isEditableElement(event.target)) {
+				const sectionEl = event.target.closest("[data-section-component]");
+				if (sectionEl && sectionEl.parentElement === sectionEl.ownerDocument?.body && Vvveb.SectionConfig?.tryOpenSectionConfigDialog) {
+					event.preventDefault();
+					Vvveb.SectionConfig.tryOpenSectionConfigDialog(sectionEl);
+				}
 				return;
 			}
 
